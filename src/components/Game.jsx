@@ -18,21 +18,21 @@ const ROUNDS = [
     id: 1,
     image:
       "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?q=80&w=1200&auto=format&fit=crop",
-    answer: "cat",
+    answers: ["cat", "kitten", "feline"],
     clue: "House pet that says meow",
   },
   {
     id: 2,
     image:
       "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop",
-    answer: "shoes",
+    answers: ["shoes", "sneakers", "footwear"],
     clue: "You wear them on your feet",
   },
   {
     id: 3,
     image:
       "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1200&auto=format&fit=crop&ixid=1SAnrIxw5OY",
-    answer: "laptop",
+    answers: ["laptop", "notebook", "portable computer"],
     clue: "Portable computer",
   },
 ];
@@ -125,7 +125,7 @@ export default function Game({
   const onSubmit = (e) => {
     e.preventDefault();
     if (!input.trim()) return;
-    if (normalize(input) === normalize(current.answer)) {
+    if (current.answers.some((answer) => normalize(input) === normalize(answer))) {
       handleWin();
     } else {
       handleFail("Wrong!");
