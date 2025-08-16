@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useRef } from "react";
+import React, { useEffect, useMemo, useCallback, useState, useRef } from "react";
 
 // Tailwind classes are used throughout. No external UI libs required.
 
@@ -36,7 +36,7 @@ const ROUNDS = [
   },
 ];
 
-const Overlay = ({ show, kind, message, onClick }) => {
+const Overlay = React.memo(({ show, kind, message, onClick }) => {
   if (!show) return null;
   const isWin = kind === "win";
   return (
@@ -45,17 +45,19 @@ const Overlay = ({ show, kind, message, onClick }) => {
       className={`absolute inset-0 z-30 flex items-center justify-center backdrop-blur-sm transition ${
         isWin ? "bg-emerald-600/75" : "bg-rose-600/75"
       }`}
+      aria-label={isWin ? "Continue to next round" : "Try again"}
     >
       <div
         className={`text-white text-4xl md:text-6xl font-black tracking-tight drop-shadow-xl select-none ${
           isWin ? "animate-bounce" : "animate-pulse"
         }`}
+        aria-live="assertive"
       >
         {message}
       </div>
     </button>
   );
-};
+});
 
 export default function App() {
   const [mode, setMode] = useState("timed"); // "timed" or "classic"
@@ -74,51 +76,60 @@ export default function App() {
     inputRef.current?.focus();
   }, [round]);
 
-  // Timed mode: 5s countdown
+  // Timed mode: 5s countdown with requestAnimationFrame
   useEffect(() => {
-    if (mode !== "timed") return; // Classic: no timer
-    if (overlay.show) return; // Pause timer while overlay visible
+    if (mode !== "timed" || overlay.show) return;
     setCountdown(5);
     const start = Date.now();
-    const id = setInterval(() => {
+    let rafId;
+    const tick = () => {
       const elapsed = Math.floor((Date.now() - start) / 1000);
       const remaining = Math.max(0, 5 - elapsed);
       setCountdown(remaining);
       if (remaining === 0) {
-        clearInterval(id);
         handleFail("Time's up!");
+      } else {
+        rafId = requestAnimationFrame(tick);
       }
-    }, 200);
-    return () => clearInterval(id);
+    };
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
   }, [round, mode, overlay.show]);
 
   const normalize = (s) => s.trim().toLowerCase();
 
-  const nextRound = (advance = true) => {
+  const nextRound = useCallback((advance = true) => {
     setInput("");
     setOverlay({ show: false, kind: null, message: "" });
     if (advance) setRound((r) => r + 1);
-  };
+  }, []);
 
-  const handleFail = (msg = "Wrong!") => {
-    setOverlay({ show: true, kind: "fail", message: msg });
-    setStats((s) => ({ ...s, wrong: s.wrong + 1, streak: 0, rounds: s.rounds + 1 }));
-    const isTimeout = msg.toLowerCase().includes("time");
-    setTimeout(() => nextRound(isTimeout), 1000);
-  };
+  const updateStats = useCallback((isWin) => {
+    setStats((s) => ({
+      correct: isWin ? s.correct + 1 : s.correct,
+      wrong: isWin ? s.wrong : s.wrong + 1,
+      streak: isWin ? s.streak + 1 : 0,
+      rounds: s.rounds + 1,
+    }));
+  }, []);
 
-  const handleWin = () => {
+  const handleFail = useCallback(
+    (msg = "Wrong!") => {
+      setOverlay({ show: true, kind: "fail", message: msg });
+      updateStats(false);
+      const isTimeout = msg.toLowerCase().includes("time");
+      setTimeout(() => nextRound(isTimeout), 1000);
+    },
+    [nextRound, updateStats]
+  );
+
+  const handleWin = useCallback(() => {
     const phrase = WIN_PHRASES[winIndex % WIN_PHRASES.length];
     setOverlay({ show: true, kind: "win", message: phrase });
     setWinIndex((i) => i + 1);
-    setStats((s) => ({
-      correct: s.correct + 1,
-      wrong: s.wrong,
-      streak: s.streak + 1,
-      rounds: s.rounds + 1,
-    }));
+    updateStats(true);
     setTimeout(() => nextRound(true), 900);
-  };
+  }, [nextRound, updateStats, winIndex]);
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -136,10 +147,10 @@ export default function App() {
       <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-900/80 backdrop-blur">
         <div className="mx-auto max-w-5xl px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-2xl bg-rose-600 grid place-items-center font-black">?</div>
+            <div className="h-10 w-10 rounded-2xl bg-rose-600 grid place-items-center font-black">?</div>
             <div>
               <h1 className="text-xl font-black tracking-tight">Guess It!</h1>
-              <p className="text-xs text-slate-400 -mt-0.5">Guess the object in the image.</p>
+              <p className="text-sm text-slate-400 -mt-0.5">Guess the object in the image.</p>
             </div>
           </div>
 
@@ -147,7 +158,7 @@ export default function App() {
             <ModeBadge mode={mode} />
             <button
               onClick={() => setMode((m) => (m === "timed" ? "classic" : "timed"))}
-              className="rounded-2xl px-3 py-2 text-sm bg-slate-800 border border-white/10 hover:bg-slate-700 transition"
+              className="rounded-2xl px-4 py-3 text-sm bg-slate-800 border border-white/10 hover:bg-slate-700 active:bg-slate-600 transition"
               title="Toggle mode"
             >
               Switch to {mode === "timed" ? "Classic (untimed)" : "Timed"}
@@ -157,7 +168,7 @@ export default function App() {
       </header>
 
       {/* Main */}
-      <main className="mx-auto max-w-5xl px-4 pb-24">
+      <main className="mx-auto max-w-5xl px-4 pb-20">
         {/* HUD */}
         <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
           <HudTile label="Round" value={stats.rounds + 1} />
@@ -176,7 +187,14 @@ export default function App() {
             <div className="relative aspect-[16/9] bg-slate-800">
               <img
                 src={current.image}
-                alt="Round"
+                srcSet={`
+                  ${current.image}&w=600 600w,
+                  ${current.image}&w=1200 1200w
+                `}
+                sizes="(max-width: 768px) 600px, 1200px"
+                alt="Round image"
+                onError={(e) => (e.target.src = "/fallback-image.jpg")}
+                loading="lazy"
                 className="absolute inset-0 h-full w-full object-cover"
                 draggable={false}
               />
@@ -191,17 +209,17 @@ export default function App() {
 
             {/* Bottom bar (clue + input) */}
             <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 p-4 bg-slate-900/70">
-              <div className="flex-1 text-sm text-slate-300">
+              <div className="flex-1 text-base text-slate-300">
                 {showClue ? (
                   <div className="flex items-center gap-2">
-                    <span className="inline-flex h-6 shrink-0 items-center rounded-full bg-rose-600/20 px-2 text-rose-300 text-xs font-medium border border-rose-500/30">
+                    <span className="inline-flex h-6 shrink-0 items-center rounded-full bg-rose-600/20 px-2 text-rose-300 text-sm font-medium border border-rose-500/30">
                       Clue
                     </span>
-                    <span className="truncate">{current.clue}</span>
+                    <span className="line-clamp-2">{current.clue}</span>
                   </div>
                 ) : (
                   <button
-                    className="text-xs text-slate-400 underline underline-offset-4 hover:text-slate-200"
+                    className="text-sm text-slate-400 underline underline-offset-4 hover:text-slate-200"
                     onClick={() => setShowClue(true)}
                   >
                     Show clue
@@ -216,11 +234,12 @@ export default function App() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Type your guess…"
-                  className="flex-1 md:w-80 rounded-2xl bg-slate-800 border border-white/10 px-4 py-2.5 outline-none focus:ring-2 focus:ring-rose-500/60"
+                  className="w-full md:w-80 rounded-2xl bg-slate-800 border border-white/10 px-4 py-3 outline-none focus:ring-2 focus:ring-rose-500/60"
+                  aria-label="Enter your guess"
                 />
                 <button
                   type="submit"
-                  className="rounded-2xl px-4 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-medium shadow-lg shadow-rose-900/30 transition"
+                  className="rounded-2xl px-4 py-3 bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white font-medium shadow-lg shadow-rose-900/30 transition"
                 >
                   Guess
                 </button>
@@ -233,14 +252,14 @@ export default function App() {
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <button
             onClick={() => setShowClue((v) => !v)}
-            className="rounded-2xl border border-white/10 bg-slate-800 px-3 py-2 text-sm hover:bg-slate-700"
+            className="rounded-2xl border border-white/10 bg-slate-800 px-4 py-3 text-sm hover:bg-slate-700 active:bg-slate-600 transition"
           >
             {showClue ? "Hide Clue" : "Show Clue"}
           </button>
           <button
             onClick={() => nextRound(true)}
-            className="rounded-2xl border border-white/10 bg-slate-800 px-3 py-2 text-sm hover:bg-slate-700"
-            title="Skip to next image"
+            className="rounded-2xl border border-white/10 bg-slate-800 px-4 py-3 text-sm hover:bg-slate-700 active:bg-slate-600 transition"
+            aria-label="Skip to next round"
           >
             Skip ↦
           </button>
@@ -252,15 +271,15 @@ export default function App() {
               setCountdown(5);
               setOverlay({ show: false, kind: null, message: "" });
             }}
-            className="rounded-2xl border border-white/10 bg-slate-800 px-3 py-2 text-sm hover:bg-slate-700"
-            title="Restart"
+            className="rounded-2xl border border-white/10 bg-slate-800 px-4 py-3 text-sm hover:bg-slate-700 active:bg-slate-600 transition"
+            aria-label="Restart game"
           >
             Reset Game
           </button>
         </div>
 
         {/* Footer */}
-        <footer className="mt-10 text-center text-xs text-slate-500">
+        <footer className="mt-10 text-center text-sm text-slate-500">
           <p>
             Default mode is <span className="font-semibold text-slate-300">Timed</span> (5s timer). Switch to{" "}
             <span className="font-semibold text-slate-300">Classic</span> in the header.
@@ -271,32 +290,29 @@ export default function App() {
   );
 }
 
-function HudTile({ label, value, pulse = false }) {
-  return (
-    <div
-      className={`rounded-2xl border border-white/10 bg-slate-800/60 p-4 shadow ${
-        pulse ? "animate-pulse" : ""
-      }`}
-    >
-      <div className="text-xs uppercase tracking-wider text-slate-400">{label}</div>
-      <div className="text-2xl font-bold">{value}</div>
-    </div>
-  );
-}
+const HudTile = React.memo(({ label, value, pulse = false }) => (
+  <div
+    className={`rounded-2xl border border-white/10 bg-slate-800/60 p-4 shadow ${
+      pulse ? "animate-pulse" : ""
+    }`}
+  >
+    <div className="text-sm uppercase tracking-wider text-slate-400">{label}</div>
+    <div className="text-2xl font-bold">{value}</div>
+  </div>
+));
 
-function ModeBadge({ mode }) {
+const ModeBadge = React.memo(({ mode }) => {
   const timed = mode === "timed";
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-medium ${
+      className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm font-medium ${
         timed
           ? "border-rose-500/40 bg-rose-500/15 text-rose-200"
           : "border-emerald-500/40 bg-emerald-500/15 text-emerald-200"
       }`}
-      title={timed ? "Timed (5s)" : "Classic (untimed)"}
     >
       <span className="h-2 w-2 rounded-full bg-current opacity-70" />
       {timed ? "Timed" : "Classic"}
     </span>
   );
-}
+});
