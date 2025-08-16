@@ -11,6 +11,14 @@ const WIN_PHRASES = [
   "You got it!",
   "Boom!",
   "On the money!",
+  "Well done!",
+  "Spot on!",
+  "Fantastic!",
+  "Way to go!",
+  "Awesome!",
+  "Perfect!",
+  "Great job!",
+  "You're a star!",
 ];
 
 const ROUNDS = [
@@ -115,12 +123,12 @@ export default function Game({
   );
 
   const handleWin = useCallback(() => {
-    const phrase = WIN_PHRASES[winIndex % WIN_PHRASES.length];
+    const randomIndex = Math.floor(Math.random() * WIN_PHRASES.length);
+    const phrase = WIN_PHRASES[randomIndex];
     setOverlay({ show: true, kind: "win", message: phrase });
-    setWinIndex((i) => i + 1);
     updateStats(true);
     setTimeout(() => nextRound(true), 900);
-  }, [nextRound, updateStats, winIndex]);
+  }, [nextRound, updateStats]);
 
   const onSubmit = (e) => {
     e.preventDefault();

@@ -12,11 +12,12 @@ export default React.memo(({ show, kind, message, onClick }) => {
       aria-label={isWin ? "Continue to next round" : "Try again"}
     >
       <div
-        className={`text-white text-4xl md:text-6xl font-black tracking-tight drop-shadow-xl select-none ${
+        className={`text-white text-4xl md:text-6xl font-black tracking-tight drop-shadow-xl select-none flex items-center gap-4 ${
           isWin ? "animate-bounce" : "animate-pulse"
         }`}
         aria-live="assertive"
       >
+        {isWin && <span>🎉</span>}
         {message}
       </div>
     </button>
