@@ -17,7 +17,7 @@ export default React.memo(({ show, kind, message, onClick }) => {
         }`}
         aria-live="assertive"
       >
-        {isWin && <span>🎉</span>}
+        {isWin ? <span>🎉</span> : <span>😕</span>}
         {message}
       </div>
     </button>

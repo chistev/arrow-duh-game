@@ -21,6 +21,25 @@ const WIN_PHRASES = [
   "You're a star!",
 ];
 
+const FAIL_PHRASES = [
+  "Oops, try again!",
+  "Not quite!",
+  "Missed it!",
+  "Better luck next time!",
+  "Close, but no cigar!",
+  "Oh no!",
+  "Swing and a miss!",
+  "Try another guess!",
+  "Not that one!",
+  "Keep trying!",
+  "Almost there!",
+  "Nope, wrong one!",
+  "Give it another shot!",
+  "Better luck next round!",
+  "That's not it!",
+];
+
+
 const ROUNDS = [
   {
     id: 1,
@@ -113,7 +132,7 @@ export default function Game({
   );
 
   const handleFail = useCallback(
-    (msg = "Wrong!") => {
+    (msg = FAIL_PHRASES[Math.floor(Math.random() * FAIL_PHRASES.length)]) => {
       setOverlay({ show: true, kind: "fail", message: msg });
       updateStats(false);
       const isTimeout = msg.toLowerCase().includes("time");
@@ -136,7 +155,7 @@ export default function Game({
     if (current.answers.some((answer) => normalize(input) === normalize(answer))) {
       handleWin();
     } else {
-      handleFail("Wrong!");
+      handleFail(); // No message, uses random fail phrase
     }
   };
 
