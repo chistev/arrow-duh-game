@@ -47,7 +47,14 @@ export default function App() {
           />
         );
       case "results":
-        return <Results stats={stats} setCurrentScreen={setCurrentScreen} />;
+        return (
+          <Results
+            stats={stats}
+            setStats={setStats}
+            setRound={setRound}
+            setCurrentScreen={setCurrentScreen}
+          />
+        );
       default:
         return <Home setCurrentScreen={setCurrentScreen} />;
     }

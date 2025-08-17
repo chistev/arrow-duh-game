@@ -149,13 +149,18 @@ export default function Game({
   const normalize = (s) => s.trim().toLowerCase();
 
   const nextRound = useCallback(
-    (advance = true) => {
+  (advance = true) => {
+    if (advance && round + 1 >= rounds.length) {
+      // Last round reached, go to results screen
+      setCurrentScreen("results");
+    } else {
       setInput("");
       setOverlay({ show: false, kind: null, message: "" });
       if (advance) setRound((r) => r + 1);
-    },
-    [setRound]
-  );
+    }
+  },
+  [setRound, setCurrentScreen, round, rounds.length]
+);
 
   const updateStats = useCallback(
     (isWin) => {
