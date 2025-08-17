@@ -258,5 +258,61 @@
       "music show"
     ],
     "clue": "A live performance with musicians and a crowd"
+  },
+  {
+    "id": 28,
+    "image": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=1200&auto=format&fit=crop",
+    "answers": [
+      "vegetables",
+      "veggies",
+      "produce"
+    ],
+    "clue": "Healthy edible plants, often colorful"
+  },
+ {
+    "id": 29,
+    "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1200&auto=format&fit=crop",
+    "answers": [
+      "headphones",
+      "earphones",
+      "headset"
+    ],
+    "clue": "Device for listening to audio privately"
+  },
+  {
+    "id": 30,
+    "image": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1200&auto=format&fit=crop",
+    "answers": [
+      "watch",
+      "wristwatch"
+    ],
+    "clue": "Timekeeping device worn on the wrist"
+  },
+  {
+    "id": 31,
+    "image": "https://images.unsplash.com/photo-1511499767150-a48a237f0083?q=80&w=1200&auto=format&fit=crop",
+    "answers": [
+      "sunglasses",
+      "shades"
+    ],
+    "clue": "Eyewear to protect from sunlight"
+  },
+  {
+    "id": 32,
+    "image": "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop",
+    "answers": [
+      "electronics",
+      "circuit board"
+    ],
+    "clue": "Complex wiring and components in devices"
+  },
+  {
+    "id": 33,
+    "image": "https://images.unsplash.com/photo-1499028344343-cd173ffc68a9?q=80&w=1200&auto=format&fit=crop",
+    "answers": [
+      "burger",
+      "hamburger"
+    ],
+    "clue": "Popular fast food with a patty and bun"
   }
 ]
