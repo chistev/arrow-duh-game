@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useCallback, useState, useRef } from "react"
 import HudTile from "./HudTile";
 import ModeBadge from "./ModeBadge";
 import Overlay from "./Overlay";
+import { playWinSound, playFailSound, playClickSound, playRoundTransitionSound } from "../utils/sound";
 
 const WIN_PHRASES = [
   "Bingo!",
@@ -51,12 +52,13 @@ export default function Game({
   setShowClue,
   countdown,
   setCountdown,
+  soundMuted,
 }) {
   const [input, setInput] = useState("");
   const [overlay, setOverlay] = useState({ show: false, kind: null, message: "" });
   const [rounds, setRounds] = useState([]);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
-  const [multipleChoiceOptions, setMultipleChoiceOptions] = useState([]); // Store options
+  const [multipleChoiceOptions, setMultipleChoiceOptions] = useState([]);
   const inputRef = useRef(null);
   const current = useMemo(() => rounds[round % rounds.length] || {}, [round, rounds]);
 
@@ -104,7 +106,10 @@ export default function Game({
     if (mode === "multiple-choice" && rounds.length > 0) {
       setMultipleChoiceOptions(getMultipleChoiceOptions());
     }
-  }, [round, mode, rounds]);
+    if (!soundMuted) {
+      playRoundTransitionSound();
+    }
+  }, [round, mode, rounds, soundMuted]);
 
   // Timed and multiple-choice modes: Countdown starts after image loads
   useEffect(() => {
@@ -126,22 +131,17 @@ export default function Game({
     return () => cancelAnimationFrame(rafId);
   }, [round, mode, overlay.show, rounds, isImageLoaded, setCountdown]);
 
-  // Dynamically generate multiple-choice options
   const getMultipleChoiceOptions = useCallback(() => {
     const correctAnswers = current.answers || [];
-    // Select one correct answer randomly
     const correct = correctAnswers[Math.floor(Math.random() * correctAnswers.length)];
-    // Get all possible incorrect answers from other rounds
     const allAnswers = rounds
       .flatMap((r) => r.answers)
       .filter((a) => !correctAnswers.includes(a));
     const incorrect = [];
-    // Select 3 unique incorrect answers
     while (incorrect.length < 3 && allAnswers.length > 0) {
       const randomIndex = Math.floor(Math.random() * allAnswers.length);
       incorrect.push(allAnswers.splice(randomIndex, 1)[0]);
     }
-    // Combine and shuffle
     const options = [correct, ...incorrect].sort(() => Math.random() - 0.5);
     return options;
   }, [current, rounds]);
@@ -173,10 +173,13 @@ export default function Game({
     (msg = FAIL_PHRASES[Math.floor(Math.random() * FAIL_PHRASES.length)]) => {
       setOverlay({ show: true, kind: "fail", message: msg });
       updateStats(false);
+      if (!soundMuted) {
+        playFailSound();
+      }
       const isTimeout = msg.toLowerCase().includes("time");
       setTimeout(() => nextRound(isTimeout), 1000);
     },
-    [nextRound, updateStats]
+    [nextRound, updateStats, soundMuted]
   );
 
   const handleWin = useCallback(() => {
@@ -184,12 +187,18 @@ export default function Game({
     const phrase = WIN_PHRASES[randomIndex];
     setOverlay({ show: true, kind: "win", message: phrase });
     updateStats(true);
+    if (!soundMuted) {
+      playWinSound();
+    }
     setTimeout(() => nextRound(true), 900);
-  }, [nextRound, updateStats]);
+  }, [nextRound, updateStats, soundMuted]);
 
   const onSubmit = (e) => {
     e.preventDefault();
     if (!input.trim() || rounds.length === 0) return;
+    if (!soundMuted) {
+      playClickSound();
+    }
     if (current.answers.some((answer) => normalize(input) === normalize(answer))) {
       handleWin();
     } else {
@@ -198,6 +207,9 @@ export default function Game({
   };
 
   const handleMultipleChoice = (choice) => {
+    if (!soundMuted) {
+      playClickSound();
+    }
     if (current.answers.some((answer) => normalize(choice) === normalize(answer))) {
       handleWin();
     } else {
@@ -205,7 +217,6 @@ export default function Game({
     }
   };
 
-  // Handle loading or error state
   if (rounds.length === 0) {
     return (
       <div className="min-h-screen bg-slate-900 text-slate-100 flex items-center justify-center">
@@ -216,7 +227,6 @@ export default function Game({
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100">
-      {/* Top Bar */}
       <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-900/80 backdrop-blur">
         <div className="mx-auto max-w-5xl px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -229,15 +239,16 @@ export default function Game({
           <div className="flex items-center gap-2">
             <ModeBadge mode={mode} />
             <button
-              onClick={() =>
+              onClick={() => {
+                if (!soundMuted) playClickSound();
                 setMode((m) =>
                   m === "timed"
                     ? "classic"
                     : m === "classic"
                     ? "multiple-choice"
                     : "timed"
-                )
-              }
+                );
+              }}
               className="rounded-2xl px-4 py-3 text-sm bg-slate-800 border border-white/10 hover:bg-slate-700 active:bg-slate-600 transition"
               title="Toggle mode"
             >
@@ -249,7 +260,10 @@ export default function Game({
                 : "Timed"}
             </button>
             <button
-              onClick={() => setCurrentScreen("home")}
+              onClick={() => {
+                if (!soundMuted) playClickSound();
+                setCurrentScreen("home");
+              }}
               className="rounded-2xl px-4 py-3 text-sm bg-slate-800 border border-white/10 hover:bg-slate-700 active:bg-slate-600 transition"
             >
               Home
@@ -258,9 +272,7 @@ export default function Game({
         </div>
       </header>
 
-      {/* Main */}
       <main className="mx-auto max-w-5xl px-4 pb-20">
-        {/* HUD */}
         <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
           <HudTile label="Round" value={stats.rounds + 1} />
           <HudTile label="Streak" value={stats.streak} />
@@ -272,7 +284,6 @@ export default function Game({
           />
         </div>
 
-        {/* Image Card */}
         <section className="relative mt-6">
           <div className="relative overflow-hidden rounded-3xl border border-white/10 shadow-2xl">
             <div className="relative aspect-[16/9] bg-slate-800">
@@ -295,11 +306,13 @@ export default function Game({
                 show={overlay.show}
                 kind={overlay.kind}
                 message={overlay.message}
-                onClick={() => nextRound(overlay.kind === "win")}
+                onClick={() => {
+                  if (!soundMuted) playClickSound();
+                  nextRound(overlay.kind === "win");
+                }}
               />
             </div>
 
-            {/* Bottom bar (clue + input or multiple-choice buttons) */}
             <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 p-4 bg-slate-900/70">
               <div className="flex-1 text-base text-slate-300">
                 {showClue ? (
@@ -312,7 +325,10 @@ export default function Game({
                 ) : (
                   <button
                     className="text-sm text-slate-400 underline underline-offset-4 hover:text-slate-200"
-                    onClick={() => setShowClue(true)}
+                    onClick={() => {
+                      if (!soundMuted) playClickSound();
+                      setShowClue(true);
+                    }}
                   >
                     Show clue
                   </button>
@@ -354,16 +370,21 @@ export default function Game({
           </div>
         </section>
 
-        {/* Controls */}
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <button
-            onClick={() => setShowClue((v) => !v)}
+            onClick={() => {
+              if (!soundMuted) playClickSound();
+              setShowClue((v) => !v);
+            }}
             className="rounded-2xl border border-white/10 bg-slate-800 px-4 py-3 text-sm hover:bg-slate-700 active:bg-slate-600 transition"
           >
             {showClue ? "Hide Clue" : "Show Clue"}
           </button>
           <button
-            onClick={() => nextRound(true)}
+            onClick={() => {
+              if (!soundMuted) playClickSound();
+              nextRound(true);
+            }}
             className="rounded-2xl border border-white/10 bg-slate-800 px-4 py-3 text-sm hover:bg-slate-700 active:bg-slate-600 transition"
             aria-label="Skip to next round"
           >
@@ -371,6 +392,7 @@ export default function Game({
           </button>
           <button
             onClick={() => {
+              if (!soundMuted) playClickSound();
               setStats({ correct: 0, wrong: 0, streak: 0, rounds: 0 });
               setRound(0);
               setInput("");
@@ -383,14 +405,16 @@ export default function Game({
             Reset Game
           </button>
           <button
-            onClick={() => setCurrentScreen("results")}
+            onClick={() => {
+              if (!soundMuted) playClickSound();
+              setCurrentScreen("results");
+            }}
             className="rounded-2xl border border-white/10 bg-slate-800 px-4 py-3 text-sm hover:bg-slate-700 active:bg-slate-600 transition"
           >
             View Results
           </button>
         </div>
 
-        {/* Footer */}
         <footer className="mt-10 text-center text-sm text-slate-500">
           <p>
             Default mode is <span className="font-semibold text-slate-300">Timed</span> (5s timer). Switch to{" "}

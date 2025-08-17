@@ -6,11 +6,12 @@ import Results from "./components/Results";
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState("home");
-  const [mode, setMode] = useState("timed"); // "timed", "classic", or "multiple-choice"
+  const [mode, setMode] = useState("timed");
   const [stats, setStats] = useState({ correct: 0, wrong: 0, streak: 0, rounds: 0 });
   const [round, setRound] = useState(0);
   const [showClue, setShowClue] = useState(true);
   const [countdown, setCountdown] = useState(5);
+  const [soundMuted, setSoundMuted] = useState(true); // Mute by default
 
   const renderScreen = () => {
     switch (currentScreen) {
@@ -30,6 +31,7 @@ export default function App() {
             setShowClue={setShowClue}
             countdown={countdown}
             setCountdown={setCountdown}
+            soundMuted={soundMuted}
           />
         );
       case "settings":
@@ -40,6 +42,8 @@ export default function App() {
             showClue={showClue}
             setShowClue={setShowClue}
             setCurrentScreen={setCurrentScreen}
+            soundMuted={soundMuted}
+            setSoundMuted={setSoundMuted}
           />
         );
       case "results":

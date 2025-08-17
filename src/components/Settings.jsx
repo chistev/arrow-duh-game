@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function Settings({ mode, setMode, showClue, setShowClue, setCurrentScreen }) {
+export default function Settings({ mode, setMode, showClue, setShowClue, setCurrentScreen, soundMuted, setSoundMuted }) {
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col items-center justify-center px-4">
       <h2 className="text-2xl md:text-3xl font-black tracking-tight">Settings</h2>
@@ -28,6 +28,19 @@ export default function Settings({ mode, setMode, showClue, setShowClue, setCurr
             }`}
           >
             {showClue ? "Clues Enabled" : "Clues Disabled"}
+          </button>
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-slate-400 text-sm font-medium">Sound Effects</label>
+          <button
+            onClick={() => setSoundMuted((v) => !v)}
+            className={`rounded-2xl px-4 py-3 text-sm font-medium transition ${
+              !soundMuted
+                ? "bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white"
+                : "bg-slate-800 border border-white/10 hover:bg-slate-700 active:bg-slate-600"
+            }`}
+          >
+            {soundMuted ? "Sound Disabled" : "Sound Enabled"}
           </button>
         </div>
         <button
