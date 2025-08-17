@@ -55,7 +55,8 @@ export default function Game({
   const [input, setInput] = useState("");
   const [overlay, setOverlay] = useState({ show: false, kind: null, message: "" });
   const [rounds, setRounds] = useState([]);
-  const [isImageLoaded, setIsImageLoaded] = useState(false); // Track image loading
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [multipleChoiceOptions, setMultipleChoiceOptions] = useState([]); // Store options
   const inputRef = useRef(null);
   const current = useMemo(() => rounds[round % rounds.length] || {}, [round, rounds]);
 
@@ -94,15 +95,20 @@ export default function Game({
       });
   }, []);
 
-  // Focus input and reset image loading state each round
+  // Focus input and reset image loading state and options each round
   useEffect(() => {
-    inputRef.current?.focus();
-    setIsImageLoaded(false); // Reset when round changes
-  }, [round]);
+    if (mode !== "multiple-choice") {
+      inputRef.current?.focus();
+    }
+    setIsImageLoaded(false);
+    if (mode === "multiple-choice" && rounds.length > 0) {
+      setMultipleChoiceOptions(getMultipleChoiceOptions());
+    }
+  }, [round, mode, rounds]);
 
-  // Timed mode: Countdown starts only after image loads
+  // Timed and multiple-choice modes: Countdown starts after image loads
   useEffect(() => {
-    if (mode !== "timed" || overlay.show || rounds.length === 0 || !isImageLoaded) return;
+    if (mode === "classic" || overlay.show || rounds.length === 0 || !isImageLoaded) return;
     setCountdown(5);
     const start = Date.now();
     let rafId;
@@ -119,6 +125,26 @@ export default function Game({
     rafId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafId);
   }, [round, mode, overlay.show, rounds, isImageLoaded, setCountdown]);
+
+  // Dynamically generate multiple-choice options
+  const getMultipleChoiceOptions = useCallback(() => {
+    const correctAnswers = current.answers || [];
+    // Select one correct answer randomly
+    const correct = correctAnswers[Math.floor(Math.random() * correctAnswers.length)];
+    // Get all possible incorrect answers from other rounds
+    const allAnswers = rounds
+      .flatMap((r) => r.answers)
+      .filter((a) => !correctAnswers.includes(a));
+    const incorrect = [];
+    // Select 3 unique incorrect answers
+    while (incorrect.length < 3 && allAnswers.length > 0) {
+      const randomIndex = Math.floor(Math.random() * allAnswers.length);
+      incorrect.push(allAnswers.splice(randomIndex, 1)[0]);
+    }
+    // Combine and shuffle
+    const options = [correct, ...incorrect].sort(() => Math.random() - 0.5);
+    return options;
+  }, [current, rounds]);
 
   const normalize = (s) => s.trim().toLowerCase();
 
@@ -171,6 +197,14 @@ export default function Game({
     }
   };
 
+  const handleMultipleChoice = (choice) => {
+    if (current.answers.some((answer) => normalize(choice) === normalize(answer))) {
+      handleWin();
+    } else {
+      handleFail();
+    }
+  };
+
   // Handle loading or error state
   if (rounds.length === 0) {
     return (
@@ -195,11 +229,24 @@ export default function Game({
           <div className="flex items-center gap-2">
             <ModeBadge mode={mode} />
             <button
-              onClick={() => setMode((m) => (m === "timed" ? "classic" : "timed"))}
+              onClick={() =>
+                setMode((m) =>
+                  m === "timed"
+                    ? "classic"
+                    : m === "classic"
+                    ? "multiple-choice"
+                    : "timed"
+                )
+              }
               className="rounded-2xl px-4 py-3 text-sm bg-slate-800 border border-white/10 hover:bg-slate-700 active:bg-slate-600 transition"
               title="Toggle mode"
             >
-              Switch to {mode === "timed" ? "Classic (untimed)" : "Timed"}
+              Switch to{" "}
+              {mode === "timed"
+                ? "Classic"
+                : mode === "classic"
+                ? "Multiple Choice"
+                : "Timed"}
             </button>
             <button
               onClick={() => setCurrentScreen("home")}
@@ -219,9 +266,9 @@ export default function Game({
           <HudTile label="Streak" value={stats.streak} />
           <HudTile label="Correct" value={stats.correct} />
           <HudTile
-            label={mode === "timed" ? "Timer" : "Mode"}
-            value={mode === "timed" ? `${countdown}s` : "∞"}
-            pulse={mode === "timed"}
+            label={mode === "classic" ? "Mode" : "Timer"}
+            value={mode === "classic" ? "∞" : `${countdown}s`}
+            pulse={mode !== "classic"}
           />
         </div>
 
@@ -238,8 +285,8 @@ export default function Game({
                 sizes="(max-width: 768px) 600px, 1200px"
                 alt="Round image"
                 onError={(e) => (e.target.src = "/fallback-image.jpg")}
-                onLoad={() => setIsImageLoaded(true)} // Set image loaded state
-                loading="eager" // Prioritize image loading
+                onLoad={() => setIsImageLoaded(true)}
+                loading="eager"
                 className="absolute inset-0 h-full w-full object-cover"
                 draggable={false}
               />
@@ -252,7 +299,7 @@ export default function Game({
               />
             </div>
 
-            {/* Bottom bar (clue + input) */}
+            {/* Bottom bar (clue + input or multiple-choice buttons) */}
             <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 p-4 bg-slate-900/70">
               <div className="flex-1 text-base text-slate-300">
                 {showClue ? (
@@ -272,23 +319,37 @@ export default function Game({
                 )}
               </div>
 
-              <form onSubmit={onSubmit} className="flex gap-2 w-full md:w-auto">
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Type your guess…"
-                  className="w-full md:w-80 rounded-2xl bg-slate-800 border border-white/10 px-4 py-3 outline-none focus:ring-2 focus:ring-rose-500/60"
-                  aria-label="Enter your guess"
-                />
-                <button
-                  type="submit"
-                  className="rounded-2xl px-4 py-3 bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white font-medium shadow-lg shadow-rose-900/30 transition"
-                >
-                  Guess
-                </button>
-              </form>
+              {mode === "multiple-choice" ? (
+                <div className="grid grid-cols-2 gap-2 w-full md:w-80">
+                  {multipleChoiceOptions.map((choice, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleMultipleChoice(choice)}
+                      className="rounded-2xl px-4 py-3 bg-slate-800 border border-white/10 hover:bg-slate-700 active:bg-slate-600 transition text-sm"
+                    >
+                      {choice}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <form onSubmit={onSubmit} className="flex gap-2 w-full md:w-auto">
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Type your guess…"
+                    className="w-full md:w-80 rounded-2xl bg-slate-800 border border-white/10 px-4 py-3 outline-none focus:ring-2 focus:ring-rose-500/60"
+                    aria-label="Enter your guess"
+                  />
+                  <button
+                    type="submit"
+                    className="rounded-2xl px-4 py-3 bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white font-medium shadow-lg shadow-rose-900/30 transition"
+                  >
+                    Guess
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         </section>
@@ -333,7 +394,8 @@ export default function Game({
         <footer className="mt-10 text-center text-sm text-slate-500">
           <p>
             Default mode is <span className="font-semibold text-slate-300">Timed</span> (5s timer). Switch to{" "}
-            <span className="font-semibold text-slate-300">Classic</span> in the header.
+            <span className="font-semibold text-slate-300">Classic</span> or{" "}
+            <span className="font-semibold text-slate-300">Multiple Choice</span> in the header.
           </p>
         </footer>
       </main>

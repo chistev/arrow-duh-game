@@ -14,6 +14,7 @@ export default function Settings({ mode, setMode, showClue, setShowClue, setCurr
           >
             <option value="timed">Timed (5s)</option>
             <option value="classic">Classic (Untimed)</option>
+            <option value="multiple-choice">Multiple Choice (5s)</option>
           </select>
         </div>
         <div className="flex flex-col gap-2">

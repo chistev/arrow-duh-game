@@ -6,7 +6,7 @@ import Results from "./components/Results";
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState("home");
-  const [mode, setMode] = useState("timed"); // "timed" or "classic"
+  const [mode, setMode] = useState("timed"); // "timed", "classic", or "multiple-choice"
   const [stats, setStats] = useState({ correct: 0, wrong: 0, streak: 0, rounds: 0 });
   const [round, setRound] = useState(0);
   const [showClue, setShowClue] = useState(true);
