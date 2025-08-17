@@ -3,6 +3,7 @@ import HudTile from "./HudTile";
 import ModeBadge from "./ModeBadge";
 import Overlay from "./Overlay";
 import { playWinSound, playFailSound, playClickSound, playRoundTransitionSound } from "../utils/sound";
+import { checkAchievements, loadAchievements } from "./achievements";
 
 const WIN_PHRASES = [
   "Bingo!",
@@ -59,6 +60,7 @@ export default function Game({
   const [rounds, setRounds] = useState([]);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [multipleChoiceOptions, setMultipleChoiceOptions] = useState([]);
+  const [achievements, setAchievements] = useState(loadAchievements());
   const inputRef = useRef(null);
   const current = useMemo(() => rounds[round % rounds.length] || {}, [round, rounds]);
 
@@ -177,14 +179,19 @@ export default function Game({
 
   const updateStats = useCallback(
     (isWin) => {
-      setStats((s) => ({
-        correct: isWin ? s.correct + 1 : s.correct,
-        wrong: isWin ? s.wrong : s.wrong + 1,
-        streak: isWin ? s.streak + 1 : 0,
-        rounds: s.rounds + 1,
-      }));
+      setStats((s) => {
+        const newStats = {
+          correct: isWin ? s.correct + 1 : s.correct,
+          wrong: isWin ? s.wrong : s.wrong + 1,
+          streak: isWin ? s.streak + 1 : 0,
+          rounds: s.rounds + 1,
+        };
+        const newAchievements = checkAchievements(newStats, mode, achievements);
+        setAchievements(newAchievements);
+        return newStats;
+      });
     },
-    [setStats]
+    [setStats, mode, achievements]
   );
 
   const handleFail = useCallback(
@@ -292,7 +299,7 @@ export default function Game({
 
       <main className="mx-auto max-w-5xl px-4 pb-20">
         <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-          <HudTile label="Round" value={stats.rounds + 1} />
+          <HudTile label="Round" value={`${stats.rounds + 1}/${rounds.length}`} />
           <HudTile label="Streak" value={stats.streak} />
           <HudTile label="Correct" value={stats.correct} />
           <HudTile
@@ -300,6 +307,12 @@ export default function Game({
             value={mode === "classic" ? "∞" : `${countdown}s`}
             pulse={mode !== "classic"}
           />
+        </div>
+        <div className="mt-4 w-full bg-slate-800 rounded-full h-2.5">
+          <div
+            className="bg-rose-600 h-2.5 rounded-full transition-all duration-300"
+            style={{ width: `${((stats.rounds + 1) / rounds.length) * 100}%` }}
+          ></div>
         </div>
 
         <section className="relative mt-6">

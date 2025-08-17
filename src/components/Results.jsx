@@ -1,7 +1,10 @@
 import React from "react";
 import HudTile from "./HudTile";
+import { loadAchievements, ACHIEVEMENTS } from "./achievements";
 
 export default function Results({ stats, setStats, setRound, setCurrentScreen }) {
+  const achievements = loadAchievements();
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col items-center justify-center px-4">
       <h2 className="text-2xl md:text-3xl font-black tracking-tight">Results</h2>
@@ -10,6 +13,31 @@ export default function Results({ stats, setStats, setRound, setCurrentScreen })
         <HudTile label="Correct" value={stats.correct} />
         <HudTile label="Wrong" value={stats.wrong} />
         <HudTile label="Longest Streak" value={stats.streak} />
+      </div>
+      <div className="mt-8 w-full max-w-5xl">
+        <h3 className="text-xl font-bold tracking-tight">Achievements</h3>
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {ACHIEVEMENTS.map((achievement) => (
+            <div
+              key={achievement.id}
+              className={`p-4 rounded-2xl border ${
+                achievements[achievement.id]
+                  ? "bg-emerald-600/20 border-emerald-500/40"
+                  : "bg-slate-800/60 border-white/10"
+              }`}
+            >
+              <h4 className="font-medium">{achievement.name}</h4>
+              <p className="text-sm text-slate-400">{achievement.description}</p>
+              {achievements[achievement.id] ? (
+                <p className="text-sm text-emerald-300">
+                  Unlocked on {new Date(achievements[achievement.id].unlocked).toLocaleDateString()}
+                </p>
+              ) : (
+                <p className="text-sm text-slate-500">Not unlocked yet</p>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
       <div className="mt-8 flex flex-col gap-4 w-full max-w-md">
         <button
