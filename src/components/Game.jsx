@@ -62,7 +62,17 @@ export default function Game({
   const inputRef = useRef(null);
   const current = useMemo(() => rounds[round % rounds.length] || {}, [round, rounds]);
 
-  // Fetch rounds data from JSON file
+  // Fisher-Yates shuffle function
+  const shuffleArray = (array) => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
+  // Fetch rounds data from JSON file and shuffle
   useEffect(() => {
     fetch("/rounds.json")
       .then((response) => {
@@ -71,10 +81,15 @@ export default function Game({
         }
         return response.json();
       })
-      .then((data) => setRounds(data))
+      .then((data) => {
+        // Shuffle the rounds array
+        const shuffledRounds = shuffleArray(data);
+        setRounds(shuffledRounds);
+      })
       .catch((error) => {
         console.error("Error fetching rounds:", error);
-        setRounds([
+        // Fallback rounds (also shuffled)
+        const fallbackRounds = shuffleArray([
           {
             id: 1,
             image: "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?q=80&w=1200&auto=format&fit=crop",
@@ -94,6 +109,7 @@ export default function Game({
             clue: "Portable computer",
           },
         ]);
+        setRounds(fallbackRounds);
       });
   }, []);
 
@@ -149,18 +165,18 @@ export default function Game({
   const normalize = (s) => s.trim().toLowerCase();
 
   const nextRound = useCallback(
-  (advance = true) => {
-    if (advance && round + 1 >= rounds.length) {
-      // Last round reached, go to results screen
-      setCurrentScreen("results");
-    } else {
-      setInput("");
-      setOverlay({ show: false, kind: null, message: "" });
-      if (advance) setRound((r) => r + 1);
-    }
-  },
-  [setRound, setCurrentScreen, round, rounds.length]
-);
+    (advance = true) => {
+      if (advance && round + 1 >= rounds.length) {
+        // Last round reached, go to results screen
+        setCurrentScreen("results");
+      } else {
+        setInput("");
+        setOverlay({ show: false, kind: null, message: "" });
+        if (advance) setRound((r) => r + 1);
+      }
+    },
+    [setRound, setCurrentScreen, round, rounds.length]
+  );
 
   const updateStats = useCallback(
     (isWin) => {
