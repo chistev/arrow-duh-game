@@ -54,8 +54,8 @@ export default function Game({
 }) {
   const [input, setInput] = useState("");
   const [overlay, setOverlay] = useState({ show: false, kind: null, message: "" });
-  const [rounds, setRounds] = useState([]); // State to store rounds data
-  const [winIndex, setWinIndex] = useState(0);
+  const [rounds, setRounds] = useState([]);
+  const [isImageLoaded, setIsImageLoaded] = useState(false); // Track image loading
   const inputRef = useRef(null);
   const current = useMemo(() => rounds[round % rounds.length] || {}, [round, rounds]);
 
@@ -71,7 +71,6 @@ export default function Game({
       .then((data) => setRounds(data))
       .catch((error) => {
         console.error("Error fetching rounds:", error);
-        // Optionally set fallback rounds if fetch fails
         setRounds([
           {
             id: 1,
@@ -82,7 +81,7 @@ export default function Game({
           {
             id: 2,
             image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop",
-            answers: ["shoes", "sneakers", "footwear"],
+            answers: ["shoe", "sneakers", "footwear"],
             clue: "You wear them on your feet",
           },
           {
@@ -95,14 +94,15 @@ export default function Game({
       });
   }, []);
 
-  // Focus input each round
+  // Focus input and reset image loading state each round
   useEffect(() => {
     inputRef.current?.focus();
+    setIsImageLoaded(false); // Reset when round changes
   }, [round]);
 
-  // Timed mode: 5s countdown with requestAnimationFrame
+  // Timed mode: Countdown starts only after image loads
   useEffect(() => {
-    if (mode !== "timed" || overlay.show || rounds.length === 0) return;
+    if (mode !== "timed" || overlay.show || rounds.length === 0 || !isImageLoaded) return;
     setCountdown(5);
     const start = Date.now();
     let rafId;
@@ -118,7 +118,7 @@ export default function Game({
     };
     rafId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafId);
-  }, [round, mode, overlay.show, rounds, setCountdown]);
+  }, [round, mode, overlay.show, rounds, isImageLoaded, setCountdown]);
 
   const normalize = (s) => s.trim().toLowerCase();
 
@@ -238,7 +238,8 @@ export default function Game({
                 sizes="(max-width: 768px) 600px, 1200px"
                 alt="Round image"
                 onError={(e) => (e.target.src = "/fallback-image.jpg")}
-                loading="lazy"
+                onLoad={() => setIsImageLoaded(true)} // Set image loaded state
+                loading="eager" // Prioritize image loading
                 className="absolute inset-0 h-full w-full object-cover"
                 draggable={false}
               />
