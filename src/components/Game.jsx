@@ -39,31 +39,6 @@ const FAIL_PHRASES = [
   "That's not it!",
 ];
 
-
-const ROUNDS = [
-  {
-    id: 1,
-    image:
-      "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?q=80&w=1200&auto=format&fit=crop",
-    answers: ["cat", "kitten", "feline"],
-    clue: "House pet that says meow",
-  },
-  {
-    id: 2,
-    image:
-      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop",
-    answers: ["shoes", "sneakers", "footwear"],
-    clue: "You wear them on your feet",
-  },
-  {
-    id: 3,
-    image:
-      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1200&auto=format&fit=crop&ixid=1SAnrIxw5OY",
-    answers: ["laptop", "notebook", "portable computer"],
-    clue: "Portable computer",
-  },
-];
-
 export default function Game({
   setCurrentScreen,
   mode,
@@ -79,9 +54,46 @@ export default function Game({
 }) {
   const [input, setInput] = useState("");
   const [overlay, setOverlay] = useState({ show: false, kind: null, message: "" });
+  const [rounds, setRounds] = useState([]); // State to store rounds data
   const [winIndex, setWinIndex] = useState(0);
   const inputRef = useRef(null);
-  const current = useMemo(() => ROUNDS[round % ROUNDS.length], [round]);
+  const current = useMemo(() => rounds[round % rounds.length] || {}, [round, rounds]);
+
+  // Fetch rounds data from JSON file
+  useEffect(() => {
+    fetch("/rounds.json")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch rounds data");
+        }
+        return response.json();
+      })
+      .then((data) => setRounds(data))
+      .catch((error) => {
+        console.error("Error fetching rounds:", error);
+        // Optionally set fallback rounds if fetch fails
+        setRounds([
+          {
+            id: 1,
+            image: "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?q=80&w=1200&auto=format&fit=crop",
+            answers: ["cat", "kitten", "feline"],
+            clue: "House pet that says meow",
+          },
+          {
+            id: 2,
+            image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop",
+            answers: ["shoes", "sneakers", "footwear"],
+            clue: "You wear them on your feet",
+          },
+          {
+            id: 3,
+            image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1200&auto=format&fit=crop&ixid=1SAnrIxw5OY",
+            answers: ["laptop", "notebook", "portable computer"],
+            clue: "Portable computer",
+          },
+        ]);
+      });
+  }, []);
 
   // Focus input each round
   useEffect(() => {
@@ -90,7 +102,7 @@ export default function Game({
 
   // Timed mode: 5s countdown with requestAnimationFrame
   useEffect(() => {
-    if (mode !== "timed" || overlay.show) return;
+    if (mode !== "timed" || overlay.show || rounds.length === 0) return;
     setCountdown(5);
     const start = Date.now();
     let rafId;
@@ -106,7 +118,7 @@ export default function Game({
     };
     rafId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafId);
-  }, [round, mode, overlay.show, setCountdown]);
+  }, [round, mode, overlay.show, rounds, setCountdown]);
 
   const normalize = (s) => s.trim().toLowerCase();
 
@@ -151,13 +163,22 @@ export default function Game({
 
   const onSubmit = (e) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || rounds.length === 0) return;
     if (current.answers.some((answer) => normalize(input) === normalize(answer))) {
       handleWin();
     } else {
-      handleFail(); // No message, uses random fail phrase
+      handleFail();
     }
   };
+
+  // Handle loading or error state
+  if (rounds.length === 0) {
+    return (
+      <div className="min-h-screen bg-slate-900 text-slate-100 flex items-center justify-center">
+        <p>Loading rounds...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100">
