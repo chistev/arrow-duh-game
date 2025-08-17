@@ -52,7 +52,7 @@ export default function Game({
   setShowClue,
   countdown,
   setCountdown,
-  soundMuted,
+  soundVolume,
 }) {
   const [input, setInput] = useState("");
   const [overlay, setOverlay] = useState({ show: false, kind: null, message: "" });
@@ -82,13 +82,11 @@ export default function Game({
         return response.json();
       })
       .then((data) => {
-        // Shuffle the rounds array
         const shuffledRounds = shuffleArray(data);
         setRounds(shuffledRounds);
       })
       .catch((error) => {
         console.error("Error fetching rounds:", error);
-        // Fallback rounds (also shuffled)
         const fallbackRounds = shuffleArray([
           {
             id: 1,
@@ -122,10 +120,10 @@ export default function Game({
     if (mode === "multiple-choice" && rounds.length > 0) {
       setMultipleChoiceOptions(getMultipleChoiceOptions());
     }
-    if (!soundMuted) {
-      playRoundTransitionSound();
+    if (soundVolume > 0) {
+      playRoundTransitionSound(soundVolume);
     }
-  }, [round, mode, rounds, soundMuted]);
+  }, [round, mode, rounds, soundVolume]);
 
   // Timed and multiple-choice modes: Countdown starts after image loads
   useEffect(() => {
@@ -167,7 +165,6 @@ export default function Game({
   const nextRound = useCallback(
     (advance = true) => {
       if (advance && round + 1 >= rounds.length) {
-        // Last round reached, go to results screen
         setCurrentScreen("results");
       } else {
         setInput("");
@@ -194,13 +191,13 @@ export default function Game({
     (msg = FAIL_PHRASES[Math.floor(Math.random() * FAIL_PHRASES.length)]) => {
       setOverlay({ show: true, kind: "fail", message: msg });
       updateStats(false);
-      if (!soundMuted) {
-        playFailSound();
+      if (soundVolume > 0) {
+        playFailSound(soundVolume);
       }
       const isTimeout = msg.toLowerCase().includes("time");
       setTimeout(() => nextRound(isTimeout), 1000);
     },
-    [nextRound, updateStats, soundMuted]
+    [nextRound, updateStats, soundVolume]
   );
 
   const handleWin = useCallback(() => {
@@ -208,17 +205,17 @@ export default function Game({
     const phrase = WIN_PHRASES[randomIndex];
     setOverlay({ show: true, kind: "win", message: phrase });
     updateStats(true);
-    if (!soundMuted) {
-      playWinSound();
+    if (soundVolume > 0) {
+      playWinSound(soundVolume);
     }
     setTimeout(() => nextRound(true), 900);
-  }, [nextRound, updateStats, soundMuted]);
+  }, [nextRound, updateStats, soundVolume]);
 
   const onSubmit = (e) => {
     e.preventDefault();
     if (!input.trim() || rounds.length === 0) return;
-    if (!soundMuted) {
-      playClickSound();
+    if (soundVolume > 0) {
+      playClickSound(soundVolume);
     }
     if (current.answers.some((answer) => normalize(input) === normalize(answer))) {
       handleWin();
@@ -228,8 +225,8 @@ export default function Game({
   };
 
   const handleMultipleChoice = (choice) => {
-    if (!soundMuted) {
-      playClickSound();
+    if (soundVolume > 0) {
+      playClickSound(soundVolume);
     }
     if (current.answers.some((answer) => normalize(choice) === normalize(answer))) {
       handleWin();
@@ -261,7 +258,7 @@ export default function Game({
             <ModeBadge mode={mode} />
             <button
               onClick={() => {
-                if (!soundMuted) playClickSound();
+                if (soundVolume > 0) playClickSound(soundVolume);
                 setMode((m) =>
                   m === "timed"
                     ? "classic"
@@ -282,7 +279,7 @@ export default function Game({
             </button>
             <button
               onClick={() => {
-                if (!soundMuted) playClickSound();
+                if (soundVolume > 0) playClickSound(soundVolume);
                 setCurrentScreen("home");
               }}
               className="rounded-2xl px-4 py-3 text-sm bg-slate-800 border border-white/10 hover:bg-slate-700 active:bg-slate-600 transition"
@@ -328,7 +325,7 @@ export default function Game({
                 kind={overlay.kind}
                 message={overlay.message}
                 onClick={() => {
-                  if (!soundMuted) playClickSound();
+                  if (soundVolume > 0) playClickSound(soundVolume);
                   nextRound(overlay.kind === "win");
                 }}
               />
@@ -347,7 +344,7 @@ export default function Game({
                   <button
                     className="text-sm text-slate-400 underline underline-offset-4 hover:text-slate-200"
                     onClick={() => {
-                      if (!soundMuted) playClickSound();
+                      if (soundVolume > 0) playClickSound(soundVolume);
                       setShowClue(true);
                     }}
                   >
@@ -394,7 +391,7 @@ export default function Game({
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <button
             onClick={() => {
-              if (!soundMuted) playClickSound();
+              if (soundVolume > 0) playClickSound(soundVolume);
               setShowClue((v) => !v);
             }}
             className="rounded-2xl border border-white/10 bg-slate-800 px-4 py-3 text-sm hover:bg-slate-700 active:bg-slate-600 transition"
@@ -403,7 +400,7 @@ export default function Game({
           </button>
           <button
             onClick={() => {
-              if (!soundMuted) playClickSound();
+              if (soundVolume > 0) playClickSound(soundVolume);
               nextRound(true);
             }}
             className="rounded-2xl border border-white/10 bg-slate-800 px-4 py-3 text-sm hover:bg-slate-700 active:bg-slate-600 transition"
@@ -413,7 +410,7 @@ export default function Game({
           </button>
           <button
             onClick={() => {
-              if (!soundMuted) playClickSound();
+              if (soundVolume > 0) playClickSound(soundVolume);
               setStats({ correct: 0, wrong: 0, streak: 0, rounds: 0 });
               setRound(0);
               setInput("");
@@ -427,7 +424,7 @@ export default function Game({
           </button>
           <button
             onClick={() => {
-              if (!soundMuted) playClickSound();
+              if (soundVolume > 0) playClickSound(soundVolume);
               setCurrentScreen("results");
             }}
             className="rounded-2xl border border-white/10 bg-slate-800 px-4 py-3 text-sm hover:bg-slate-700 active:bg-slate-600 transition"

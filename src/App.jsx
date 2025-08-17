@@ -11,7 +11,7 @@ export default function App() {
   const [round, setRound] = useState(0);
   const [showClue, setShowClue] = useState(true);
   const [countdown, setCountdown] = useState(5);
-  const [soundMuted, setSoundMuted] = useState(true); // Mute by default
+  const [soundVolume, setSoundVolume] = useState(0); // Volume from 0 to 1
 
   const renderScreen = () => {
     switch (currentScreen) {
@@ -31,7 +31,7 @@ export default function App() {
             setShowClue={setShowClue}
             countdown={countdown}
             setCountdown={setCountdown}
-            soundMuted={soundMuted}
+            soundVolume={soundVolume}
           />
         );
       case "settings":
@@ -42,8 +42,8 @@ export default function App() {
             showClue={showClue}
             setShowClue={setShowClue}
             setCurrentScreen={setCurrentScreen}
-            soundMuted={soundMuted}
-            setSoundMuted={setSoundMuted}
+            soundVolume={soundVolume}
+            setSoundVolume={setSoundVolume}
           />
         );
       case "results":

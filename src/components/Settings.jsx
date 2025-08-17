@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function Settings({ mode, setMode, showClue, setShowClue, setCurrentScreen, soundMuted, setSoundMuted }) {
+export default function Settings({ mode, setMode, showClue, setShowClue, setCurrentScreen, soundVolume, setSoundVolume }) {
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col items-center justify-center px-4">
       <h2 className="text-2xl md:text-3xl font-black tracking-tight">Settings</h2>
@@ -31,17 +31,16 @@ export default function Settings({ mode, setMode, showClue, setShowClue, setCurr
           </button>
         </div>
         <div className="flex flex-col gap-2">
-          <label className="text-slate-400 text-sm font-medium">Sound Effects</label>
-          <button
-            onClick={() => setSoundMuted((v) => !v)}
-            className={`rounded-2xl px-4 py-3 text-sm font-medium transition ${
-              !soundMuted
-                ? "bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white"
-                : "bg-slate-800 border border-white/10 hover:bg-slate-700 active:bg-slate-600"
-            }`}
-          >
-            {soundMuted ? "Sound Disabled" : "Sound Enabled"}
-          </button>
+          <label className="text-slate-400 text-sm font-medium">Sound Volume ({Math.round(soundVolume * 100)}%)</label>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={soundVolume}
+            onChange={(e) => setSoundVolume(parseFloat(e.target.value))}
+            className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-rose-500"
+          />
         </div>
         <button
           onClick={() => setCurrentScreen("home")}
