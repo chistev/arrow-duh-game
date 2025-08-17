@@ -177,504 +177,61 @@
     "clue": "Colorful inflatable decorations filled with air"
   },
   {
-    "id": 51,
-    "image": "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "lighthouse",
-      "tower",
-      "beacon"
-    ],
-    "clue": "Guides ships with light"
-  },
-  {
-    "id": 52,
-    "image": "https://images.unsplash.com/photo-1523413651479-597eb2da0ad6?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "train station",
-      "railway station",
-      "platform"
-    ],
-    "clue": "Where trains stop"
-  },
-  {
-    "id": 53,
-    "image": "https://images.unsplash.com/photo-1523413651479-597eb2da0ad6?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "bus",
-      "coach",
-      "public transport"
-    ],
-    "clue": "Big vehicle with many seats"
-  },
-  {
-    "id": 54,
-    "image": "https://images.unsplash.com/photo-1493244040629-496f6d136cc3?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "bird",
-      "sparrow",
-      "flying animal"
-    ],
-    "clue": "Feathered sky dweller"
-  },
-  {
-    "id": 55,
+    "id": 19,
     "image": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop",
     "answers": [
-      "cat",
-      "tabby",
-      "kitten"
+      "road",
+      "street",
+      "asphalt"
     ],
-    "clue": "Whiskered purr machine"
+    "clue": "A paved path for vehicles and traffic"
   },
   {
-    "id": 56,
-    "image": "https://images.unsplash.com/photo-1472162072942-cd5147eb3902?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "forest",
-      "woods",
-      "trees"
-    ],
-    "clue": "Lots of trees together"
-  },
-  {
-    "id": 57,
-    "image": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "robot",
-      "machine",
-      "android"
-    ],
-    "clue": "Metallic helper"
-  },
-  {
-    "id": 58,
-    "image": "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "snow",
-      "ice",
-      "winter"
-    ],
-    "clue": "Cold white blanket"
-  },
-  {
-    "id": 59,
-    "image": "https://images.unsplash.com/photo-1519682337058-a94d519337bc?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "bridge",
-      "golden gate",
-      "overpass"
-    ],
-    "clue": "Famous San Francisco span"
-  },
-  {
-    "id": 60,
-    "image": "https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "basketball",
-      "hoop",
-      "sports"
-    ],
-    "clue": "Orange ball game"
-  },
-  {
-    "id": 61,
-    "image": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "hamburger",
-      "burger",
-      "sandwich"
-    ],
-    "clue": "Beef patty in a bun"
-  },
-  {
-    "id": 62,
-    "image": "https://images.unsplash.com/photo-1484981184820-2e84ea0b1d2c?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "pasta",
-      "spaghetti",
-      "noodles"
-    ],
-    "clue": "Italian noodles"
-  },
-  {
-    "id": 63,
+    "id": 20,
     "image": "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1200&auto=format&fit=crop",
     "answers": [
-      "apple",
-      "iphone",
-      "smartphone"
+      "children",
+      "kids",
+      "youngsters"
     ],
-    "clue": "Popular phone brand"
+    "clue": "Young humans, often playful and energetic"
   },
   {
-    "id": 64,
-    "image": "https://images.unsplash.com/photo-1518717758536-85ae29035b6d?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "dog",
-      "dalmatian",
-      "puppy"
-    ],
-    "clue": "Spotted firehouse friend"
-  },
-  {
-    "id": 65,
-    "image": "https://images.unsplash.com/photo-1523413651479-597eb2da0ad6?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "subway station",
-      "metro station",
-      "platform"
-    ],
-    "clue": "Underground train stop"
-  },
-  {
-    "id": 66,
-    "image": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "wave",
-      "surf",
-      "ocean"
-    ],
-    "clue": "Big water curl"
-  },
-  {
-    "id": 67,
+    "id": 21,
     "image": "https://images.unsplash.com/photo-1480796927426-f609979314bd?q=80&w=1200&auto=format&fit=crop",
     "answers": [
-      "teddy bear",
-      "toy",
-      "stuffed animal"
+      "shop",
+      "store",
+      "market"
     ],
-    "clue": "Soft cuddly friend"
+    "clue": "A place where you buy goods"
   },
   {
-    "id": 68,
-    "image": "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "bunny",
-      "rabbit",
-      "hare"
-    ],
-    "clue": "Long ears, loves carrots"
-  },
-  {
-    "id": 69,
+    "id": 22,
     "image": "https://images.unsplash.com/photo-1470165525439-3cf9e6dccbad?q=80&w=1200&auto=format&fit=crop",
     "answers": [
-      "pumpkin",
-      "squash",
-      "jack o lantern"
+      "birds"
     ],
-    "clue": "Orange Halloween veggie"
+    "clue": "Feathered creatures that can fly"
   },
   {
-    "id": 70,
-    "image": "https://images.unsplash.com/photo-1504595403659-9088ce801e29?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "sunflower",
-      "flower",
-      "plant"
-    ],
-    "clue": "Big yellow garden star"
-  },
-  {
-    "id": 71,
-    "image": "https://images.unsplash.com/photo-1483794344563-d27a8d18014e?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "dolphin",
-      "marine mammal",
-      "porpoise"
-    ],
-    "clue": "Smart ocean jumper"
-  },
-  {
-    "id": 72,
-    "image": "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "night sky",
-      "stars",
-      "galaxy"
-    ],
-    "clue": "Shiny dots above"
-  },
-  {
-    "id": 73,
-    "image": "https://images.unsplash.com/photo-1517511620798-cec17d428bc0?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "soccer",
-      "football",
-      "sports"
-    ],
-    "clue": "World’s most popular game"
-  },
-  {
-    "id": 74,
-    "image": "https://images.unsplash.com/photo-1511914265871-8e1777b1a6c5?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "piano",
-      "keyboard",
-      "instrument"
-    ],
-    "clue": "Black and white keys"
-  },
-  {
-    "id": 75,
-    "image": "https://images.unsplash.com/photo-1481349518771-20055b2a7b24?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "tram",
-      "streetcar",
-      "light rail"
-    ],
-    "clue": "Rails in the street"
-  },
-  {
-    "id": 76,
-    "image": "https://images.unsplash.com/photo-1513863323964-24ae1f9fc635?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "soccer goal",
-      "net",
-      "goalpost"
-    ],
-    "clue": "Where you score"
-  },
-  {
-    "id": 77,
-    "image": "https://images.unsplash.com/photo-1501436513145-30f24e19fcc8?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "tiger",
-      "big cat",
-      "striped feline"
-    ],
-    "clue": "Striped jungle hunter"
-  },
-  {
-    "id": 78,
-    "image": "https://images.unsplash.com/photo-1495640452828-3df6795cf69a?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "cow",
-      "cattle",
-      "bull"
-    ],
-    "clue": "Moo!"
-  },
-  {
-    "id": 79,
-    "image": "https://images.unsplash.com/photo-1453728013993-6d66e9c9123a?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "bookstore",
-      "library",
-      "books"
-    ],
-    "clue": "Rows of stories"
-  },
-  {
-    "id": 80,
-    "image": "https://images.unsplash.com/photo-1519947486511-46149fa0a254?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "snowman",
-      "frosty",
-      "winter figure"
-    ],
-    "clue": "Carrot nose, coal eyes"
-  },
-  {
-    "id": 81,
-    "image": "https://images.unsplash.com/photo-1523285367489-d38aec03b7f3?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "castle",
-      "fortress",
-      "palace"
-    ],
-    "clue": "Fairytale stronghold"
-  },
-  {
-    "id": 82,
+    "id": 23,
     "image": "https://images.unsplash.com/photo-1524253482453-3fed8d2fe12b?q=80&w=1200&auto=format&fit=crop",
     "answers": [
-      "fox",
-      "red fox",
-      "animal"
+      "smartphones",
+      "phones",
+      "mobile phones"
     ],
-    "clue": "Sly woodland hunter"
+    "clue": "Handheld devices used for calling, apps, and internet"
   },
   {
-    "id": 83,
+    "id": 24,
     "image": "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?q=80&w=1200&auto=format&fit=crop",
     "answers": [
-      "owl",
-      "bird",
-      "hoot"
+      "city",
+      "skyscrapers"
     ],
-    "clue": "Wise night flier"
-  },
-  {
-    "id": 84,
-    "image": "https://images.unsplash.com/photo-1523413651479-597eb2da0ad6?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "train tracks",
-      "railroad",
-      "rails"
-    ],
-    "clue": "Where trains roll"
-  },
-  {
-    "id": 85,
-    "image": "https://images.unsplash.com/photo-1523413651479-597eb2da0ad6?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "air balloon",
-      "hot air balloon",
-      "balloon"
-    ],
-    "clue": "Floating giant bubble"
-  },
-  {
-    "id": 86,
-    "image": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "island",
-      "beach",
-      "tropical"
-    ],
-    "clue": "Land in the sea"
-  },
-  {
-    "id": 87,
-    "image": "https://images.unsplash.com/photo-1493809842364-78817add7ffb?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "drums",
-      "drum set",
-      "percussion"
-    ],
-    "clue": "Beat with sticks"
-  },
-  {
-    "id": 88,
-    "image": "https://images.unsplash.com/photo-1516239329175-9d9a8f04ad8a?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "headphones",
-      "earphones",
-      "audio"
-    ],
-    "clue": "Listen privately"
-  },
-  {
-    "id": 89,
-    "image": "https://images.unsplash.com/photo-1493612276216-ee3925520721?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "cupcake",
-      "muffin",
-      "dessert"
-    ],
-    "clue": "Frosted mini cake"
-  },
-  {
-    "id": 90,
-    "image": "https://images.unsplash.com/photo-1483794344563-d27a8d18014e?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "whale",
-      "blue whale",
-      "ocean mammal"
-    ],
-    "clue": "Largest animal on Earth"
-  },
-  {
-    "id": 91,
-    "image": "https://images.unsplash.com/photo-1511963219601-94e2f36f12c6?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "pencil",
-      "eraser",
-      "stationery"
-    ],
-    "clue": "Writes and erases"
-  },
-  {
-    "id": 92,
-    "image": "https://images.unsplash.com/photo-1534080564583-6be75777b70a?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "eagle",
-      "bird of prey",
-      "raptor"
-    ],
-    "clue": "Soars with sharp eyes"
-  },
-  {
-    "id": 93,
-    "image": "https://images.unsplash.com/photo-1517677208171-0bc6725a3e60?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "desert",
-      "sand dunes",
-      "arid land"
-    ],
-    "clue": "Dry sandy place"
-  },
-  {
-    "id": 94,
-    "image": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "kitten",
-      "baby cat",
-      "feline"
-    ],
-    "clue": "Tiny meowing fluffball"
-  },
-  {
-    "id": 95,
-    "image": "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "harbor",
-      "port",
-      "dock"
-    ],
-    "clue": "Ships park here"
-  },
-  {
-    "id": 96,
-    "image": "https://images.unsplash.com/photo-1494526585095-c41746248156?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "wolf",
-      "howl",
-      "canine"
-    ],
-    "clue": "Moonlight howler"
-  },
-  {
-    "id": 97,
-    "image": "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "glacier",
-      "ice",
-      "frozen"
-    ],
-    "clue": "Slow moving ice giant"
-  },
-  {
-    "id": 98,
-    "image": "https://images.unsplash.com/photo-1487014679447-9f8336841d58?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "cat",
-      "black cat",
-      "kitten"
-    ],
-    "clue": "Superstitious feline"
-  },
-  {
-    "id": 99,
-    "image": "https://images.unsplash.com/photo-1494172961521-33799ddd43a5?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "succulent",
-      "plant",
-      "cactus"
-    ],
-    "clue": "Small desert plant"
-  },
-  {
-    "id": 100,
-    "image": "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?q=80&w=1200&auto=format&fit=crop",
-    "answers": [
-      "palm tree",
-      "tree",
-      "tropical"
-    ],
-    "clue": "Iconic island tree"
+    "clue": "A skyline filled with tall buildings"
   },
   {
     "id": 101,
