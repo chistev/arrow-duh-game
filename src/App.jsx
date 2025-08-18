@@ -1,18 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Home from "./components/Home";
 import Game from "./components/Game";
 import Settings from "./components/Settings";
 import Results from "./components/Results";
 
 export default function App() {
+  // Initialize stats from localStorage or use default
   const [currentScreen, setCurrentScreen] = useState("home");
   const [mode, setMode] = useState("timed");
-  const [stats, setStats] = useState({ correct: 0, wrong: 0, streak: 0, rounds: 0 });
+  const [stats, setStats] = useState(() => {
+    const savedStats = localStorage.getItem("gameStats");
+    return savedStats
+      ? JSON.parse(savedStats)
+      : { correct: 0, wrong: 0, streak: 0, rounds: 0 };
+  });
   const [round, setRound] = useState(0);
   const [showClue, setShowClue] = useState(true);
   const [countdown, setCountdown] = useState(5);
   const [soundVolume, setSoundVolume] = useState(0);
-  const [lives, setLives] = useState(3); // State for lives
+  const [lives, setLives] = useState(3);
+
+  // Save stats to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("gameStats", JSON.stringify(stats));
+  }, [stats]);
 
   const renderScreen = () => {
     switch (currentScreen) {
@@ -47,7 +58,7 @@ export default function App() {
             setCurrentScreen={setCurrentScreen}
             soundVolume={soundVolume}
             setSoundVolume={setSoundVolume}
-            setLives={setLives} // Add setLives prop
+            setLives={setLives}
           />
         );
       case "results":
@@ -59,7 +70,7 @@ export default function App() {
             setCurrentScreen={setCurrentScreen}
             mode={mode}
             lives={lives}
-            setLives={setLives} // Ensure setLives is passed
+            setLives={setLives}
           />
         );
       default:
