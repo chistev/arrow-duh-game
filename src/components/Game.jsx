@@ -4,42 +4,7 @@ import ModeBadge from "./ModeBadge";
 import Overlay from "./Overlay";
 import { playWinSound, playFailSound, playClickSound, playRoundTransitionSound } from "../utils/sound";
 import { checkAchievements, loadAchievements } from "./achievements";
-
-const WIN_PHRASES = [
-  "Bingo!",
-  "Nailed it!",
-  "Chef's kiss!",
-  "Correctamundo!",
-  "You got it!",
-  "Boom!",
-  "On the money!",
-  "Well done!",
-  "Spot on!",
-  "Fantastic!",
-  "Way to go!",
-  "Awesome!",
-  "Perfect!",
-  "Great job!",
-  "You're a star!",
-];
-
-const FAIL_PHRASES = [
-  "Oops, try again!",
-  "Not quite!",
-  "Missed it!",
-  "Better luck next time!",
-  "Close, but no cigar!",
-  "Oh no!",
-  "Swing and a miss!",
-  "Try another guess!",
-  "Not that one!",
-  "Keep trying!",
-  "Almost there!",
-  "Nope, wrong one!",
-  "Give it another shot!",
-  "Better luck next round!",
-  "That's not it!",
-];
+import { WIN_PHRASES, FAIL_PHRASES } from "../utils/phrases";
 
 export default function Game({
   setCurrentScreen,
