@@ -6,13 +6,11 @@ export const ACHIEVEMENTS = [
   { id: "correct_20", name: "Sharp Eye", description: "Get 20 correct answers", condition: (stats) => stats.correct >= 20 },
 ];
 
-// Load achievements from local storage
 export const loadAchievements = () => {
   const stored = localStorage.getItem("achievements");
   return stored ? JSON.parse(stored) : {};
 };
 
-// Save achievements to local storage
 export const saveAchievements = (achievements) => {
   localStorage.setItem("achievements", JSON.stringify(achievements));
 };
