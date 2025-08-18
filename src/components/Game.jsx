@@ -54,6 +54,8 @@ export default function Game({
   countdown,
   setCountdown,
   soundVolume,
+  lives,
+  setLives,
 }) {
   const [input, setInput] = useState("");
   const [overlay, setOverlay] = useState({ show: false, kind: null, message: "" });
@@ -129,7 +131,15 @@ export default function Game({
 
   // Timed and multiple-choice modes: Countdown starts after image loads
   useEffect(() => {
-    if (mode === "classic" || overlay.show || rounds.length === 0 || !isImageLoaded) return;
+    if (
+      mode === "classic" ||
+      mode === "survival" ||
+      overlay.show ||
+      rounds.length === 0 ||
+      !isImageLoaded
+    ) {
+      return;
+    }
     setCountdown(5);
     const start = Date.now();
     let rafId;
@@ -166,7 +176,7 @@ export default function Game({
 
   const nextRound = useCallback(
     (advance = true) => {
-      if (advance && round + 1 >= rounds.length) {
+      if (advance && (mode === "survival" ? lives <= 0 : round + 1 >= rounds.length)) {
         setCurrentScreen("results");
       } else {
         setInput("");
@@ -174,7 +184,7 @@ export default function Game({
         if (advance) setRound((r) => r + 1);
       }
     },
-    [setRound, setCurrentScreen, round, rounds.length]
+    [setRound, setCurrentScreen, round, rounds.length, mode, lives]
   );
 
   const updateStats = useCallback(
@@ -190,8 +200,11 @@ export default function Game({
         setAchievements(newAchievements);
         return newStats;
       });
+      if (!isWin && mode === "survival") {
+        setLives((l) => l - 1); // Decrease lives on wrong answer
+      }
     },
-    [setStats, mode, achievements]
+    [setStats, mode, achievements, setLives]
   );
 
   const handleFail = useCallback(
@@ -202,9 +215,13 @@ export default function Game({
         playFailSound(soundVolume);
       }
       const isTimeout = msg.toLowerCase().includes("time");
-      setTimeout(() => nextRound(isTimeout), 1000);
+      if (mode === "survival" && lives - 1 <= 0) {
+        setTimeout(() => setCurrentScreen("results"), 1000); // End game if no lives left
+      } else {
+        setTimeout(() => nextRound(isTimeout), 1000);
+      }
     },
-    [nextRound, updateStats, soundVolume]
+    [nextRound, updateStats, soundVolume, mode, lives, setCurrentScreen]
   );
 
   const handleWin = useCallback(() => {
@@ -271,6 +288,8 @@ export default function Game({
                     ? "classic"
                     : m === "classic"
                     ? "multiple-choice"
+                    : m === "multiple-choice"
+                    ? "survival"
                     : "timed"
                 );
               }}
@@ -282,6 +301,8 @@ export default function Game({
                 ? "Classic"
                 : mode === "classic"
                 ? "Multiple Choice"
+                : mode === "multiple-choice"
+                ? "Survival"
                 : "Timed"}
             </button>
             <button
@@ -303,9 +324,9 @@ export default function Game({
           <HudTile label="Streak" value={stats.streak} />
           <HudTile label="Correct" value={stats.correct} />
           <HudTile
-            label={mode === "classic" ? "Mode" : "Timer"}
-            value={mode === "classic" ? "∞" : `${countdown}s`}
-            pulse={mode !== "classic"}
+            label={mode === "classic" ? "Mode" : mode === "survival" ? "Lives" : "Timer"}
+            value={mode === "classic" ? "∞" : mode === "survival" ? lives : `${countdown}s`}
+            pulse={mode === "timed" || mode === "multiple-choice"}
           />
         </div>
         <div className="mt-4 w-full bg-slate-800 rounded-full h-2.5">
@@ -428,6 +449,7 @@ export default function Game({
               setRound(0);
               setInput("");
               setCountdown(5);
+              setLives(3); // Reset lives
               setOverlay({ show: false, kind: null, message: "" });
             }}
             className="rounded-2xl border border-white/10 bg-slate-800 px-4 py-3 text-sm hover:bg-slate-700 active:bg-slate-600 transition"
@@ -449,8 +471,9 @@ export default function Game({
         <footer className="mt-10 text-center text-sm text-slate-500">
           <p>
             Default mode is <span className="font-semibold text-slate-300">Timed</span> (5s timer). Switch to{" "}
-            <span className="font-semibold text-slate-300">Classic</span> or{" "}
-            <span className="font-semibold text-slate-300">Multiple Choice</span> in the header.
+            <span className="font-semibold text-slate-300">Classic</span>,{" "}
+            <span className="font-semibold text-slate-300">Multiple Choice</span>, or{" "}
+            <span className="font-semibold text-slate-300">Survival</span> in the header.
           </p>
         </footer>
       </main>

@@ -11,7 +11,8 @@ export default function App() {
   const [round, setRound] = useState(0);
   const [showClue, setShowClue] = useState(true);
   const [countdown, setCountdown] = useState(5);
-  const [soundVolume, setSoundVolume] = useState(0); // Volume from 0 to 1
+  const [soundVolume, setSoundVolume] = useState(0);
+  const [lives, setLives] = useState(3); // State for lives
 
   const renderScreen = () => {
     switch (currentScreen) {
@@ -32,6 +33,8 @@ export default function App() {
             countdown={countdown}
             setCountdown={setCountdown}
             soundVolume={soundVolume}
+            lives={lives}
+            setLives={setLives}
           />
         );
       case "settings":
@@ -44,6 +47,7 @@ export default function App() {
             setCurrentScreen={setCurrentScreen}
             soundVolume={soundVolume}
             setSoundVolume={setSoundVolume}
+            setLives={setLives} // Add setLives prop
           />
         );
       case "results":
@@ -53,6 +57,9 @@ export default function App() {
             setStats={setStats}
             setRound={setRound}
             setCurrentScreen={setCurrentScreen}
+            mode={mode}
+            lives={lives}
+            setLives={setLives} // Ensure setLives is passed
           />
         );
       default:

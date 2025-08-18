@@ -2,7 +2,7 @@ import React from "react";
 import HudTile from "./HudTile";
 import { loadAchievements, ACHIEVEMENTS } from "./achievements";
 
-export default function Results({ stats, setStats, setRound, setCurrentScreen }) {
+export default function Results({ stats, setStats, setRound, setCurrentScreen, mode, lives, setLives }) {
   const achievements = loadAchievements();
 
   return (
@@ -12,7 +12,10 @@ export default function Results({ stats, setStats, setRound, setCurrentScreen })
         <HudTile label="Rounds Played" value={stats.rounds} />
         <HudTile label="Correct" value={stats.correct} />
         <HudTile label="Wrong" value={stats.wrong} />
-        <HudTile label="Longest Streak" value={stats.streak} />
+        <HudTile
+          label={mode === "survival" ? "Lives Remaining" : "Longest Streak"}
+          value={mode === "survival" ? lives : stats.streak}
+        />
       </div>
       <div className="mt-8 w-full max-w-5xl">
         <h3 className="text-xl font-bold tracking-tight">Achievements</h3>
@@ -44,6 +47,7 @@ export default function Results({ stats, setStats, setRound, setCurrentScreen })
           onClick={() => {
             setStats({ correct: 0, wrong: 0, streak: 0, rounds: 0 });
             setRound(0);
+            setLives(3); // Reset lives
             setCurrentScreen("game");
           }}
           className="rounded-2xl px-6 py-3 bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white font-medium shadow-lg shadow-rose-900/30 transition"

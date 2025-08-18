@@ -1,6 +1,15 @@
 import React from "react";
 
-export default function Settings({ mode, setMode, showClue, setShowClue, setCurrentScreen, soundVolume, setSoundVolume }) {
+export default function Settings({
+  mode,
+  setMode,
+  showClue,
+  setShowClue,
+  setCurrentScreen,
+  soundVolume,
+  setSoundVolume,
+  setLives, // New prop
+}) {
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col items-center justify-center px-4">
       <h2 className="text-2xl md:text-3xl font-black tracking-tight">Settings</h2>
@@ -9,12 +18,18 @@ export default function Settings({ mode, setMode, showClue, setShowClue, setCurr
           <label className="text-slate-400 text-sm font-medium">Game Mode</label>
           <select
             value={mode}
-            onChange={(e) => setMode(e.target.value)}
+            onChange={(e) => {
+              setMode(e.target.value);
+              if (e.target.value === "survival") {
+                setLives(3); // Reset lives when switching to survival mode
+              }
+            }}
             className="rounded-2xl bg-slate-800 border border-white/10 px-4 py-3 text-slate-100 focus:ring-2 focus:ring-rose-500/60"
           >
             <option value="timed">Timed (5s)</option>
             <option value="classic">Classic (Untimed)</option>
             <option value="multiple-choice">Multiple Choice (5s)</option>
+            <option value="survival">Survival (3 Lives)</option>
           </select>
         </div>
         <div className="flex flex-col gap-2">
