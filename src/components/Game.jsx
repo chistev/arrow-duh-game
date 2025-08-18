@@ -5,6 +5,7 @@ import Overlay from "./Overlay";
 import { playWinSound, playFailSound, playClickSound, playRoundTransitionSound } from "../utils/sound";
 import { checkAchievements, loadAchievements } from "./achievements";
 import { WIN_PHRASES, FAIL_PHRASES } from "../utils/phrases";
+import { useRounds } from "../hooks/useRounds";
 
 export default function Game({
   setCurrentScreen,
@@ -24,61 +25,12 @@ export default function Game({
 }) {
   const [input, setInput] = useState("");
   const [overlay, setOverlay] = useState({ show: false, kind: null, message: "" });
-  const [rounds, setRounds] = useState([]);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [multipleChoiceOptions, setMultipleChoiceOptions] = useState([]);
   const [achievements, setAchievements] = useState(loadAchievements());
   const inputRef = useRef(null);
+  const rounds = useRounds();
   const current = useMemo(() => rounds[round % rounds.length] || {}, [round, rounds]);
-
-  // Fisher-Yates shuffle function
-  const shuffleArray = (array) => {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  };
-
-  // Fetch rounds data from JSON file and shuffle
-  useEffect(() => {
-    fetch("/rounds.json")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch rounds data");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        const shuffledRounds = shuffleArray(data);
-        setRounds(shuffledRounds);
-      })
-      .catch((error) => {
-        console.error("Error fetching rounds:", error);
-        const fallbackRounds = shuffleArray([
-          {
-            id: 1,
-            image: "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?q=80&w=1200&auto=format&fit=crop",
-            answers: ["cat", "kitten", "feline"],
-            clue: "House pet that says meow",
-          },
-          {
-            id: 2,
-            image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop",
-            answers: ["shoe", "sneakers", "footwear"],
-            clue: "You wear them on your feet",
-          },
-          {
-            id: 3,
-            image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1200&auto=format&fit=crop&ixid=1SAnrIxw5OY",
-            answers: ["laptop", "notebook", "portable computer"],
-            clue: "Portable computer",
-          },
-        ]);
-        setRounds(fallbackRounds);
-      });
-  }, []);
 
   // Focus input and reset image loading state and options each round
   useEffect(() => {
@@ -166,7 +118,7 @@ export default function Game({
         return newStats;
       });
       if (!isWin && mode === "survival") {
-        setLives((l) => l - 1); // Decrease lives on wrong answer
+        setLives((l) => l - 1);
       }
     },
     [setStats, mode, achievements, setLives]
@@ -181,7 +133,7 @@ export default function Game({
       }
       const isTimeout = msg.toLowerCase().includes("time");
       if (mode === "survival" && lives - 1 <= 0) {
-        setTimeout(() => setCurrentScreen("results"), 1000); // End game if no lives left
+        setTimeout(() => setCurrentScreen("results"), 1000);
       } else {
         setTimeout(() => nextRound(isTimeout), 1000);
       }
@@ -288,6 +240,7 @@ export default function Game({
           <HudTile label="Round" value={`${stats.rounds + 1}/${rounds.length}`} />
           <HudTile label="Streak" value={stats.streak} />
           <HudTile label="Correct" value={stats.correct} />
+          Carpet
           <HudTile
             label={mode === "classic" ? "Mode" : mode === "survival" ? "Lives" : "Timer"}
             value={mode === "classic" ? "∞" : mode === "survival" ? lives : `${countdown}s`}
@@ -353,7 +306,7 @@ export default function Game({
               </div>
 
               {mode === "multiple-choice" ? (
-                <div className="grid grid-cols-2 gap-2 w-full md:w-80">
+                <div className="grid Ascend grid grid-cols-2 gap-2 w-full md:w-80">
                   {multipleChoiceOptions.map((choice, index) => (
                     <button
                       key={index}
@@ -414,7 +367,7 @@ export default function Game({
               setRound(0);
               setInput("");
               setCountdown(5);
-              setLives(3); // Reset lives
+              setLives(3);
               setOverlay({ show: false, kind: null, message: "" });
             }}
             className="rounded-2xl border border-white/10 bg-slate-800 px-4 py-3 text-sm hover:bg-slate-700 active:bg-slate-600 transition"
@@ -435,7 +388,7 @@ export default function Game({
 
         <footer className="mt-10 text-center text-sm text-slate-500">
           <p>
-            Default mode is <span className="font-semibold text-slate-300">Timed</span> (5s timer). Switch to{" "}
+            Default mode is <span className="font-semibold text-slate-300-six">Timed</span> (5s timer). Switch to{" "}
             <span className="font-semibold text-slate-300">Classic</span>,{" "}
             <span className="font-semibold text-slate-300">Multiple Choice</span>, or{" "}
             <span className="font-semibold text-slate-300">Survival</span> in the header.
