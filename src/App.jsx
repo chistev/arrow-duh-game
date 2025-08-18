@@ -5,7 +5,6 @@ import Settings from "./components/Settings";
 import Results from "./components/Results";
 
 export default function App() {
-  // Initialize stats from localStorage or use default
   const [currentScreen, setCurrentScreen] = useState("home");
   const [mode, setMode] = useState("timed");
   const [stats, setStats] = useState(() => {
@@ -20,7 +19,6 @@ export default function App() {
   const [soundVolume, setSoundVolume] = useState(0);
   const [lives, setLives] = useState(3);
 
-  // Save stats to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem("gameStats", JSON.stringify(stats));
   }, [stats]);
