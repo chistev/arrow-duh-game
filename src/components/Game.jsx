@@ -32,65 +32,7 @@ export default function Game({
   const rounds = useRounds();
   const current = useMemo(() => rounds[round % rounds.length] || {}, [round, rounds]);
 
-  // Focus input and reset image loading state and options each round
-  useEffect(() => {
-    if (mode !== "multiple-choice") {
-      inputRef.current?.focus();
-    }
-    setIsImageLoaded(false);
-    if (mode === "multiple-choice" && rounds.length > 0) {
-      setMultipleChoiceOptions(getMultipleChoiceOptions());
-    }
-    if (soundVolume > 0) {
-      playRoundTransitionSound(soundVolume);
-    }
-  }, [round, mode, rounds, soundVolume]);
-
-  // Timed and multiple-choice modes: Countdown starts after image loads
-  useEffect(() => {
-    if (
-      mode === "classic" ||
-      mode === "survival" ||
-      overlay.show ||
-      rounds.length === 0 ||
-      !isImageLoaded
-    ) {
-      return;
-    }
-    setCountdown(5);
-    const start = Date.now();
-    let rafId;
-    const tick = () => {
-      const elapsed = Math.floor((Date.now() - start) / 1000);
-      const remaining = Math.max(0, 5 - elapsed);
-      setCountdown(remaining);
-      if (remaining === 0) {
-        handleFail("Time's up!");
-      } else {
-        rafId = requestAnimationFrame(tick);
-      }
-    };
-    rafId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafId);
-  }, [round, mode, overlay.show, rounds, isImageLoaded, setCountdown]);
-
-  const getMultipleChoiceOptions = useCallback(() => {
-    const correctAnswers = current.answers || [];
-    const correct = correctAnswers[Math.floor(Math.random() * correctAnswers.length)];
-    const allAnswers = rounds
-      .flatMap((r) => r.answers)
-      .filter((a) => !correctAnswers.includes(a));
-    const incorrect = [];
-    while (incorrect.length < 3 && allAnswers.length > 0) {
-      const randomIndex = Math.floor(Math.random() * allAnswers.length);
-      incorrect.push(allAnswers.splice(randomIndex, 1)[0]);
-    }
-    const options = [correct, ...incorrect].sort(() => Math.random() - 0.5);
-    return options;
-  }, [current, rounds]);
-
-  const normalize = (s) => s.trim().toLowerCase();
-
+  // Define helper functions before useEffect to avoid ReferenceError
   const nextRound = useCallback(
     (advance = true) => {
       if (advance && (mode === "survival" ? lives <= 0 : round + 1 >= rounds.length)) {
@@ -141,16 +83,73 @@ export default function Game({
     [nextRound, updateStats, soundVolume, mode, lives, setCurrentScreen]
   );
 
-  const handleWin = useCallback(() => {
-    const randomIndex = Math.floor(Math.random() * WIN_PHRASES.length);
-    const phrase = WIN_PHRASES[randomIndex];
-    setOverlay({ show: true, kind: "win", message: phrase });
-    updateStats(true);
-    if (soundVolume > 0) {
-      playWinSound(soundVolume);
+  const handleWin = useCallback(
+    () => {
+      const randomIndex = Math.floor(Math.random() * WIN_PHRASES.length);
+      const phrase = WIN_PHRASES[randomIndex];
+      setOverlay({ show: true, kind: "win", message: phrase });
+      updateStats(true);
+      if (soundVolume > 0) {
+        playWinSound(soundVolume);
+      }
+      setTimeout(() => nextRound(true), 900);
+    },
+    [nextRound, updateStats, soundVolume]
+  );
+
+  // Focus input and reset image loading state and options each round
+  useEffect(() => {
+    if (mode !== "multiple-choice") {
+      inputRef.current?.focus();
     }
-    setTimeout(() => nextRound(true), 900);
-  }, [nextRound, updateStats, soundVolume]);
+    setIsImageLoaded(false);
+    if (mode === "multiple-choice" && rounds.length > 0) {
+      setMultipleChoiceOptions(getMultipleChoiceOptions());
+    }
+    if (soundVolume > 0) {
+      playRoundTransitionSound(soundVolume);
+    }
+  }, [round, mode, rounds, soundVolume]);
+
+  useEffect(() => {
+    if (
+      mode !== "timed" ||
+      overlay.show ||
+      rounds.length === 0 ||
+      !isImageLoaded
+    ) return;
+
+    setCountdown(5);
+    let remaining = 5;
+
+    const intervalId = setInterval(() => {
+      remaining -= 1;
+      setCountdown(remaining);
+      if (remaining <= 0) {
+        clearInterval(intervalId);
+        handleFail("Time's up!");
+      }
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [round, isImageLoaded, mode, overlay.show, rounds.length, setCountdown, handleFail]);
+
+  const getMultipleChoiceOptions = useCallback(() => {
+    const correctAnswers = current.answers || [];
+    const correct = correctAnswers[Math.floor(Math.random() * correctAnswers.length)];
+    const allAnswers = rounds
+      .flatMap((r) => r.answers)
+      .filter((a) => !correctAnswers.includes(a));
+    const incorrect = [];
+    while (incorrect.length < 3 && allAnswers.length > 0) {
+      const randomIndex = Math.floor(Math.random() * allAnswers.length);
+      incorrect.push(allAnswers.splice(randomIndex, 1)[0]);
+    }
+    const options = [correct, ...incorrect].sort(() => Math.random() - 0.5);
+    return options;
+  }, [current, rounds]);
+
+  const normalize = (s) => s.trim().toLowerCase();
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -204,10 +203,10 @@ export default function Game({
                   m === "timed"
                     ? "classic"
                     : m === "classic"
-                    ? "multiple-choice"
-                    : m === "multiple-choice"
-                    ? "survival"
-                    : "timed"
+                      ? "multiple-choice"
+                      : m === "multiple-choice"
+                        ? "survival"
+                        : "timed"
                 );
               }}
               className="rounded-2xl px-4 py-3 text-sm bg-slate-800 border border-white/10 hover:bg-slate-700 active:bg-slate-600 transition"
@@ -217,10 +216,10 @@ export default function Game({
               {mode === "timed"
                 ? "Classic"
                 : mode === "classic"
-                ? "Multiple Choice"
-                : mode === "multiple-choice"
-                ? "Survival"
-                : "Timed"}
+                  ? "Multiple Choice"
+                  : mode === "multiple-choice"
+                    ? "Survival"
+                    : "Timed"}
             </button>
             <button
               onClick={() => {
@@ -240,7 +239,6 @@ export default function Game({
           <HudTile label="Round" value={`${stats.rounds + 1}/${rounds.length}`} />
           <HudTile label="Streak" value={stats.streak} />
           <HudTile label="Correct" value={stats.correct} />
-          Carpet
           <HudTile
             label={mode === "classic" ? "Mode" : mode === "survival" ? "Lives" : "Timer"}
             value={mode === "classic" ? "∞" : mode === "survival" ? lives : `${countdown}s`}
@@ -306,7 +304,7 @@ export default function Game({
               </div>
 
               {mode === "multiple-choice" ? (
-                <div className="grid Ascend grid grid-cols-2 gap-2 w-full md:w-80">
+                <div className="grid grid-cols-2 gap-2 w-full md:w-80">
                   {multipleChoiceOptions.map((choice, index) => (
                     <button
                       key={index}
@@ -388,7 +386,7 @@ export default function Game({
 
         <footer className="mt-10 text-center text-sm text-slate-500">
           <p>
-            Default mode is <span className="font-semibold text-slate-300-six">Timed</span> (5s timer). Switch to{" "}
+            Default mode is <span className="font-semibold text-slate-300">Timed</span> (5s timer). Switch to{" "}
             <span className="font-semibold text-slate-300">Classic</span>,{" "}
             <span className="font-semibold text-slate-300">Multiple Choice</span>, or{" "}
             <span className="font-semibold text-slate-300">Survival</span> in the header.
