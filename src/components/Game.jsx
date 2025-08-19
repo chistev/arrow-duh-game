@@ -316,7 +316,7 @@ export default function Game({
                   ))}
                 </div>
               ) : (
-                <form onSubmit={onSubmit} className="flex gap-2 w-full md:w-auto">
+                <form onSubmit={onSubmit} aria-label="guess-form" className="flex gap-2 w-full md:w-auto">
                   <input
                     ref={inputRef}
                     type="text"
