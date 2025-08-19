@@ -234,3 +234,41 @@ describe("Game component handleMultipleChoice function", () => {
         expect(defaultProps.setStats).toHaveBeenCalled();
     });
 });
+
+describe("Game component when rounds are empty", () => {
+  const defaultProps = {
+    setCurrentScreen: vi.fn(),
+    mode: "timed",
+    setMode: vi.fn(),
+    stats: { correct: 0, wrong: 0, streak: 0, rounds: 0 },
+    setStats: vi.fn(),
+    round: 0,
+    setRound: vi.fn(),
+    showClue: false,
+    setShowClue: vi.fn(),
+    countdown: 5,
+    setCountdown: vi.fn(),
+    soundVolume: 0.5,
+    lives: 3,
+    setLives: vi.fn(),
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("renders loading message when rounds are empty", () => {
+    // Mock useRounds to return an empty array
+    useRounds.mockReturnValue([]);
+
+    // Render the Game component with default props
+    render(<Game {...defaultProps} />);
+
+    // Check if the loading message is displayed
+    expect(screen.getByText("Loading rounds...")).toBeInTheDocument();
+
+    // Verify the loading message is within the expected container
+    const container = screen.getByText("Loading rounds...").closest("div");
+    expect(container).toHaveClass("min-h-screen", "bg-slate-900", "text-slate-100", "flex", "items-center", "justify-center");
+  });
+});
