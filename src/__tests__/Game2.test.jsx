@@ -272,3 +272,135 @@ describe("Game component when rounds are empty", () => {
     expect(container).toHaveClass("min-h-screen", "bg-slate-900", "text-slate-100", "flex", "items-center", "justify-center");
   });
 });
+
+describe("Game component nextRound function", () => {
+  const defaultProps = {
+    setCurrentScreen: vi.fn(),
+    mode: "timed",
+    setMode: vi.fn(),
+    stats: { correct: 0, wrong: 0, streak: 0, rounds: 0 },
+    setStats: vi.fn(),
+    round: 0,
+    setRound: vi.fn(),
+    showClue: false,
+    setShowClue: vi.fn(),
+    countdown: 5,
+    setCountdown: vi.fn(),
+    soundVolume: 0.5,
+    lives: 3,
+    setLives: vi.fn(),
+  };
+
+  const mockRounds = [
+    { image: "image1.jpg", answers: ["cat", "kitten"], clue: "This is a clue" },
+    { image: "image2.jpg", answers: ["dog", "puppy"], clue: "Another clue" },
+    { image: "image3.jpg", answers: ["bird", "parrot"], clue: "Yet another clue" },
+  ];
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    useRounds.mockReturnValue(mockRounds);
+    vi.spyOn(React, "useRef").mockReturnValue({ current: { focus: vi.fn() } });
+  });
+
+  it("transitions to results screen in survival mode when lives are 0 and advance is true", () => {
+    const props = { ...defaultProps, mode: "survival", lives: 0, round: 1 };
+    render(<Game {...props} />);
+
+    // Simulate submitting a correct answer to trigger handleWin, which calls nextRound(true)
+    const input = screen.getByPlaceholderText("Type your guess…");
+    const form = screen.getByRole("form", { name: /guess-form/i });
+
+    fireEvent.change(input, { target: { value: "cat" } });
+    fireEvent.submit(form);
+
+    // Wait for overlay to appear and disappear, then check if setCurrentScreen was called
+    setTimeout(() => {
+      expect(props.setCurrentScreen).toHaveBeenCalledWith("results");
+      expect(props.setRound).not.toHaveBeenCalled();
+      expect(props.setStats).toHaveBeenCalled();
+    }, 1000);
+  });
+
+  it("transitions to results screen in non-survival mode when round + 1 >= rounds.length and advance is true", () => {
+    const props = { ...defaultProps, mode: "timed", round: mockRounds.length - 1 };
+    render(<Game {...props} />);
+
+    // Simulate submitting a correct answer
+    const input = screen.getByPlaceholderText("Type your guess…");
+    const form = screen.getByRole("form", { name: /guess-form/i });
+
+    fireEvent.change(input, { target: { value: "bird" } });
+    fireEvent.submit(form);
+
+    // Wait for overlay to appear and disappear
+    setTimeout(() => {
+      expect(props.setCurrentScreen).toHaveBeenCalledWith("results");
+      expect(props.setRound).not.toHaveBeenCalled();
+      expect(props.setStats).toHaveBeenCalled();
+    }, 1000);
+  });
+
+  it("advances to next round when advance is true and conditions for results screen are not met", () => {
+    const props = { ...defaultProps, mode: "timed", round: 0 };
+    render(<Game {...props} />);
+
+    // Simulate submitting a correct answer
+    const input = screen.getByPlaceholderText("Type your guess…");
+    const form = screen.getByRole("form", { name: /guess-form/i });
+
+    fireEvent.change(input, { target: { value: "cat" } });
+    fireEvent.submit(form);
+
+    // Wait for overlay to disappear and nextRound to execute
+    setTimeout(() => {
+      expect(props.setCurrentScreen).not.toHaveBeenCalled();
+      expect(props.setRound).toHaveBeenCalledWith(expect.any(Function));
+      expect(props.setStats).toHaveBeenCalled();
+      expect(screen.getByPlaceholderText("Type your guess…")).toHaveValue(""); // Input is cleared
+      expect(screen.queryByText(/win:/)).not.toBeInTheDocument(); // Overlay is cleared
+    }, 1000);
+  });
+
+  it("resets input and overlay but does not advance round when advance is false", () => {
+    const props = { ...defaultProps, mode: "timed", round: 0 };
+    render(<Game {...props} />);
+
+    // Simulate submitting an incorrect answer to trigger handleFail with isTimeout=true
+    const input = screen.getByPlaceholderText("Type your guess…");
+    const form = screen.getByRole("form", { name: /guess-form/i });
+
+    fireEvent.change(input, { target: { value: "dog" } });
+    fireEvent.submit(form);
+
+    // Wait for overlay to disappear
+    setTimeout(() => {
+      expect(props.setCurrentScreen).not.toHaveBeenCalled();
+      expect(props.setRound).not.toHaveBeenCalled();
+      expect(props.setStats).toHaveBeenCalled();
+      expect(screen.getByPlaceholderText("Type your guess…")).toHaveValue(""); // Input is cleared
+      expect(screen.queryByText(/fail:/)).not.toBeInTheDocument(); // Overlay is cleared
+    }, 1000);
+  });
+
+  it("does not transition to results in survival mode when lives are greater than 0", () => {
+    const props = { ...defaultProps, mode: "survival", lives: 1, round: 1 };
+    render(<Game {...props} />);
+
+    // Simulate submitting a correct answer
+    const input = screen.getByPlaceholderText("Type your guess…");
+    const form = screen.getByRole("form", { name: /guess-form/i });
+
+    fireEvent.change(input, { target: { value: "dog" } });
+    fireEvent.submit(form);
+
+    // Wait for overlay to disappear
+    setTimeout(() => {
+      expect(props.setCurrentScreen).not.toHaveBeenCalled();
+      expect(props.setRound).toHaveBeenCalledWith(expect.any(Function));
+      expect(props.setStats).toHaveBeenCalled();
+      expect(screen.getByPlaceholderText("Type your guess…")).toHaveValue("");
+      expect(screen.queryByText(/win:/)).not.toBeInTheDocument();
+    }, 1000);
+  });
+});
