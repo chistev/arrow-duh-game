@@ -1,8 +1,9 @@
 import React from "react";
-import { render, screen, act } from "@testing-library/react";
+import { render, screen, act, renderHook } from "@testing-library/react";
 import Game from "../components/Game";
 import { useRounds } from "../hooks/useRounds";
 import "@testing-library/jest-dom";
+import { useCallback } from "react";
 
 vi.mock("../utils/sound", () => ({
     playRoundTransitionSound: vi.fn(),
@@ -187,4 +188,123 @@ describe("Game component countdown useEffect hook", () => {
         expect(clearIntervalSpy).toHaveBeenCalled();
     });
 
+});
+
+describe("getMultipleChoiceOptions", () => {
+  const mockRounds = [
+    {
+      image: "image1.jpg",
+      answers: ["cat", "kitten"],
+      clue: "This is a clue for cat",
+    },
+    {
+      image: "image2.jpg",
+      answers: ["dog", "puppy"],
+      clue: "This is a clue for dog",
+    },
+    {
+      image: "image3.jpg",
+      answers: ["bird", "parrot"],
+      clue: "This is a clue for bird",
+    },
+    {
+      image: "image4.jpg",
+      answers: ["fish", "goldfish"],
+      clue: "This is a clue for fish",
+    },
+  ];
+
+  const current = mockRounds[0]; // Current round with answers ["cat", "kitten"]
+
+  // Mock Math.random to control randomization for predictable test outcomes
+  let randomIndex = 0;
+  const originalMathRandom = Math.random;
+  beforeEach(() => {
+    randomIndex = 0;
+    Math.random = vi.fn(() => {
+      const values = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]; // Predefined sequence
+      return values[randomIndex++ % values.length];
+    });
+  });
+
+  afterEach(() => {
+    Math.random = originalMathRandom; // Restore original Math.random
+  });
+
+  // Define the getMultipleChoiceOptions function within a renderHook to test useCallback
+  const setupHook = (currentArg, roundsArg) => {
+    return renderHook(() =>
+      useCallback(() => {
+        const correctAnswers = currentArg.answers || [];
+        const correct = correctAnswers[Math.floor(Math.random() * correctAnswers.length)];
+        const allAnswers = roundsArg
+          .flatMap((r) => r.answers)
+          .filter((a) => !correctAnswers.includes(a));
+        const incorrect = [];
+        while (incorrect.length < 3 && allAnswers.length > 0) {
+          const randomIndex = Math.floor(Math.random() * allAnswers.length);
+          incorrect.push(allAnswers.splice(randomIndex, 1)[0]);
+        }
+        const options = [correct, ...incorrect].sort(() => Math.random() - 0.5);
+        return options;
+      }, [currentArg, roundsArg])
+    );
+  };
+
+  it("returns exactly four options", () => {
+    const { result } = setupHook(current, mockRounds);
+    const options = result.current();
+    expect(options).toHaveLength(4);
+  });
+
+  it("includes one correct answer from current round", () => {
+    const { result } = setupHook(current, mockRounds);
+    const options = result.current();
+    expect(options).toContain("cat");
+  });
+
+  it("includes three incorrect answers not from current round", () => {
+    const { result } = setupHook(current, mockRounds);
+    const options = result.current();
+    const incorrectOptions = options.filter((option) => !["cat", "kitten"].includes(option));
+    expect(incorrectOptions).toHaveLength(3);
+    expect(incorrectOptions.every((option) => ["dog", "puppy", "bird", "parrot", "fish", "goldfish"].includes(option))).toBe(true);
+  });
+
+  it("returns different incorrect answers each time when Math.random varies", () => {
+    const { result } = setupHook(current, mockRounds);
+    const firstCall = result.current();
+    randomIndex = 0; // Reset random sequence
+    Math.random = vi.fn(() => {
+      const values = [0.6, 0.5, 0.4, 0.3, 0.2, 0.1]; // Different sequence
+      return values[randomIndex++ % values.length];
+    });
+    const secondCall = result.current();
+    expect(firstCall).not.toEqual(secondCall); // Different order due to shuffle
+  });
+
+  it("handles cases with fewer than three incorrect answers", () => {
+    const limitedRounds = [
+      { image: "image1.jpg", answers: ["cat", "kitten"], clue: "Clue" },
+      { image: "image2.jpg", answers: ["dog"], clue: "Clue" },
+    ];
+    const { result } = setupHook(current, limitedRounds);
+    const options = result.current();
+    expect(options).toHaveLength(2); // Correct answer + one incorrect
+    expect(options).toContain("cat");
+    expect(options).toContain("dog");
+  });
+
+  it("shuffles options randomly", () => {
+    const { result } = setupHook(current, mockRounds);
+    const options = result.current();
+    // Trace the Math.random calls:
+    // 1. Select correct answer: 0.1 * 2 = 0.2 -> 0 -> "cat"
+    // 2. Select first incorrect: 0.2 * 6 = 1.2 -> 1 -> "puppy"
+    // 3. Select second incorrect: 0.3 * 5 = 1.5 -> 1 -> "parrot"
+    // 4. Select third incorrect: 0.4 * 4 = 1.6 -> 1 -> "bird"
+    // 5-6. Sort: [0.5, 0.6] -> results in ["parrot", "cat", "puppy", "bird"]
+    const expectedOrder = ["parrot", "cat", "puppy", "bird"];
+    expect(options).toEqual(expectedOrder);
+  });
 });
