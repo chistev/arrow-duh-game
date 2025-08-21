@@ -1,10 +1,7 @@
-// Results.test.jsx
-import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import Results from "../components/Results";
 import "@testing-library/jest-dom";
 
-// Mock HudTile component to match actual rendering
 vi.mock("../components/HudTile", () => ({
   default: ({ label, value }) => (
     <div data-testid="hud-tile">
@@ -14,7 +11,6 @@ vi.mock("../components/HudTile", () => ({
   ),
 }));
 
-// Mock achievements module
 vi.mock("../components/achievements", () => ({
   loadAchievements: () => ({
     ach1: { unlocked: "2025-08-20T12:00:00Z" },
