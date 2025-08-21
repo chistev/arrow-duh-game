@@ -1,4 +1,3 @@
-import React from "react";
 import HudTile from "./HudTile";
 import { loadAchievements, ACHIEVEMENTS } from "./achievements";
 
