@@ -27,6 +27,14 @@ export default function Home({ setCurrentScreen }) {
         >
           View Results
         </button>
+        <a
+          href="https://www.buymeacoffee.com/chistev12"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded-2xl px-6 py-3 bg-slate-800 border border-white/10 hover:bg-slate-700 active:bg-slate-600 text-slate-300 text-center transition"
+        >
+          Support the Creator
+        </a>
       </div>
       <footer className="mt-10 text-center text-sm text-slate-500">
         <p>Challenge your observation skills in Timed or Classic mode!</p>
